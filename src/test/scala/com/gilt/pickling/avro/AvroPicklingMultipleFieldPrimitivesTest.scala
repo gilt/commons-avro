@@ -7,7 +7,7 @@ import org.apache.avro.generic.GenericData
 import scala.pickling._
 import avro._
 import TestUtils._
-
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 
 object AvroPicklingMultipleFieldPrimitivesTest {
@@ -21,27 +21,53 @@ object AvroPicklingMultipleFieldPrimitivesTest {
                            byteField: Byte,
                            shortField: Short,
                            charField: Char)
+
+
+  import org.scalacheck.Gen
+  val genField: Gen[MultipleField] = for {
+    intField <- Gen.choose(Int.MinValue, Int.MaxValue)
+    longField <- Gen.choose(Long.MinValue, Long.MaxValue)
+    doubleField <- Gen.chooseNum(Double.MinValue, Double.MaxValue)
+    floatField <- Gen.chooseNum(Float.MinValue, Float.MaxValue)
+    booleanField <- Gen.oneOf(true, false)
+    stringField <- Gen.alphaStr
+    byteField <- Gen.choose(Byte.MinValue, Byte.MaxValue)
+    shortField <- Gen.choose(Short.MinValue, Short.MaxValue)
+    charField <- Gen.choose(Char.MinValue, Char.MaxValue)
+  } yield {
+    MultipleField(intField, longField, doubleField, floatField,
+      booleanField, stringField, byteField, shortField, charField)
+  }
 }
 
-class AvroPicklingMultipleFieldPrimitivesTest extends FunSuite with Assertions {
+class AvroPicklingMultipleFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
+
+  import AvroPicklingMultipleFieldPrimitivesTest.genField
+
   test("Pickle a case class with multiple fields") {
-    val obj = MultipleField(1, 2L, 3.0, 4.0F, true, "A string value", 5.toByte, 6.toShort, 'a')
-    val pckl = obj.pickle
-    assert(generateBytesFromAvro(obj, "/avro/MutipleField.avsv") === pckl.value)
+    forAll(genField) {
+      obj =>
+        val pckl = obj.pickle
+        assert(generateBytesFromAvro(obj, "/avro/MutipleField.avsv") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with multiple fields") {
-    val obj = MultipleField(1, 2L, 3.0, 4.0F, true, "A string value", 5.toByte, 6.toShort, 'a')
-    val bytes =generateBytesFromAvro(obj, "/avro/MutipleField.avsv")
-    val hydratedObj: MultipleField = bytes.unpickle[MultipleField]
-    assert(obj === hydratedObj)
+    forAll(genField) {
+      obj =>
+        val bytes = generateBytesFromAvro(obj, "/avro/MutipleField.avsv")
+        val hydratedObj: MultipleField = bytes.unpickle[MultipleField]
+        assert(obj === hydratedObj)
+    }
   }
 
   test("Round trip a case class with a single int field") {
-    val obj = MultipleField(1, 2L, 3.0, 4.0F, true, "A string value", 5.toByte, 6.toShort, 'a')
-    val pckl = obj.pickle
-    val hydratedObj: MultipleField = pckl.unpickle[MultipleField]
-    assert(hydratedObj === obj)
+    forAll(genField) {
+      obj =>
+        val pckl = obj.pickle
+        val hydratedObj: MultipleField = pckl.unpickle[MultipleField]
+        assert(hydratedObj === obj)
+    }
   }
 
   private def generateBytesFromAvro(value: MultipleField, schemaFileLocation: String): Array[Byte] = {
