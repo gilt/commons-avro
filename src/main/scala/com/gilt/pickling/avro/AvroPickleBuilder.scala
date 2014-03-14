@@ -35,9 +35,9 @@ final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput)
         case KEY_ARRAY_SHORT => byteBuffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
         case KEY_ARRAY_CHAR => byteBuffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
         case KEY_REF =>
-          println("This is a REF")
+          println("This is a REF") //TODO remove
         case _ =>
-          println("Unhandled begin entry")
+          println("Unhandled begin entry") //TODO remove
       }
       this
   }
@@ -47,9 +47,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput)
     this
   }
 
-  @inline def endEntry(): Unit = {
-    /* do nothing */
-  }
+  @inline def endEntry(): Unit = {}
 
   @inline def beginCollection(length: Int): PBuilder = {
     //TODO We need to deal with maps. But Sets and Lists can be handle this way
@@ -64,11 +62,9 @@ final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput)
     this
   }
 
-  @inline def endCollection(): Unit = {
-    byteBuffer.encoder.writeArrayEnd()
-  }
+  @inline def endCollection(): Unit = byteBuffer.encoder.writeArrayEnd()
 
-  @inline def result() = {
-    AvroPickle(byteBuffer.result())
-  }
+
+  @inline def result() = AvroPickle(byteBuffer.result())
+
 }

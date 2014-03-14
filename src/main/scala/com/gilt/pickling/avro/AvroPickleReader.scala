@@ -48,11 +48,9 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     }
   }
 
-  def beginEntry(): FastTypeTag[_] =
-    lastTagRead
+  def beginEntry(): FastTypeTag[_] = lastTagRead
 
-  def atPrimitive: Boolean =
-    primitives.contains(lastTagRead.key)
+  def atPrimitive: Boolean = primitives.contains(lastTagRead.key)
 
   def readPrimitive(): Any = {
     lastTagRead.key match {
@@ -79,26 +77,15 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     }
   }
 
-  private def extractToArray[T: ClassTag](readFunction: () => T): Array[T] = {
-    val items = new scala.collection.mutable.ArrayBuffer[T]
-    val numberOfItems = decoder.readArrayStart()
-    (0L until numberOfItems) foreach (_ => items += readFunction())
-    items.toArray
-  }
+  def atObject: Boolean = !atPrimitive
 
-  def atObject: Boolean =
-    !atPrimitive
+  def readField(name: String): AvroPickleReader = this
 
-  def readField(name: String): AvroPickleReader =
-    this
-
-  def endEntry(): Unit = {
-    /* do nothing */
-  }
+  def endEntry(): Unit = {}
 
   def beginCollection(): PReader = {
     collectionSize = Some(decoder.readArrayStart())
-    val tpe = _lastTagRead.tpe //TODO needs to be a option to be sure to be sure.¡
+    val tpe = _lastTagRead.tpe //TODO needs to be a option to be sure to be sure
 
     if (tpe <:< typeOf[Array[_]] || tpe <:< typeOf[List[_]] || tpe <:< typeOf[Set[_]]) {
       val t = determineGenericTypeOfCollection(tpe)
@@ -109,7 +96,6 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     this
   }
 
-
   def readLength(): Int = {
     //TODO there maybe an issue with large Collections need to write a test to determine if it is.
     collectionSize match {
@@ -118,12 +104,19 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     }
   }
 
-  def readElement(): PReader =
-    this
+
+  def readElement(): PReader = this
 
   def endCollection(): Unit = {
     collectionSize = None
     collectionGenericType = None
+  }
+
+  private def extractToArray[T: ClassTag](readFunction: () => T): Array[T] = {
+    val items = new scala.collection.mutable.ArrayBuffer[T]
+    val numberOfItems = decoder.readArrayStart()
+    (0L until numberOfItems) foreach (_ => items += readFunction())
+    items.toArray
   }
 
   private def determineGenericTypeOfCollection(tpe: ru.Type): ru.Type = {
