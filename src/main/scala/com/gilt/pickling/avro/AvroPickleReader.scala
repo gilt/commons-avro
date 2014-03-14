@@ -89,7 +89,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     collectionSize = Some(decoder.readArrayStart())
     val tpe = _lastTagRead.tpe //TODO needs to be a option to be sure to be sure
 
-    if (tpe <:< typeOf[Array[_]] || tpe <:< typeOf[List[_]] || tpe <:< typeOf[Set[_]]) {
+    if (tpe <:< typeOf[Array[_]] || tpe <:< typeOf[Iterable[_]]) {
       val t = determineGenericType(tpe)
       collectionGenericType = Some(FastTypeTag(mirror, t, t.typeSymbol.fullName))
     } else
@@ -145,8 +145,10 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   private def determineGenericType(tpe: ru.Type): ru.Type = {
     tpe match {
+        // this only supports collections with a single type, so, not Map for example,
+        // which returns a list of length 2 in the third position.
       case TypeRef(_, _, genericType :: Nil) => genericType
-      case _ => throw new PicklingException("Cannot determine generic type of collection")
+      case _ => throw new PicklingException(s"Cannot determine generic type of collection ($tpe)")
     }
   }
 }
