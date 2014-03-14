@@ -21,15 +21,17 @@ object AvroPickleSingleOptionalFieldPrimitivesTest {
   case class SingleOptionShort(id: Option[Short])
   case class SingleOptionChar(id: Option[Char])
 
-  implicit val arbSingleOptionInt = Arbitrary(for (num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleOptionInt(Some(num)))
-  implicit val arbSingleOptionLong = Arbitrary(for (num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleOptionLong(Some(num)))
-  implicit val arbSingleOptionDouble = Arbitrary(for (num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleOptionDouble(Some(num)))
-  implicit val arbSingleOptionFloat = Arbitrary(for (num <- Gen.choose(Float.MinValue, Float.MaxValue)) yield SingleOptionFloat(Some(num)))
-  implicit val arbSingleOptionBoolean = Arbitrary(for (num <- Gen.oneOf(true, false)) yield SingleOptionBoolean(Some(num)))
-  implicit val arbSingleOptionString = Arbitrary(for (num <- Gen.alphaStr) yield SingleOptionString(Some(num)))
-  implicit val arbSingleOptionByte = Arbitrary(for (num <- Gen.choose(Byte.MinValue, Byte.MaxValue)) yield SingleOptionByte(Some(num)))
-  implicit val arbSingleOptionShort = Arbitrary(for (num <- Gen.choose(Short.MinValue, Short.MaxValue)) yield SingleOptionShort(Some(num)))
-  implicit val arbSingleOptionChar = Arbitrary(for (num <- Gen.choose(Char.MinValue, Char.MaxValue)) yield SingleOptionChar(Some(num)))
+  def opt[T](exists: Boolean, value: T) = if (exists) Some(value) else None
+
+  implicit val arbSingleOptionInt = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleOptionInt(opt(exists,num)))
+  implicit val arbSingleOptionLong = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleOptionLong(opt(exists,num)))
+  implicit val arbSingleOptionDouble = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleOptionDouble(opt(exists, num)))
+  implicit val arbSingleOptionFloat = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Float.MinValue, Float.MaxValue)) yield SingleOptionFloat(opt(exists, num)))
+  implicit val arbSingleOptionBoolean = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.oneOf(true, false)) yield SingleOptionBoolean(opt(exists, num)))
+  implicit val arbSingleOptionString = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.alphaStr) yield SingleOptionString(opt(exists, num)))
+  implicit val arbSingleOptionByte = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Byte.MinValue, Byte.MaxValue)) yield SingleOptionByte(opt(exists, num)))
+  implicit val arbSingleOptionShort = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Short.MinValue, Short.MaxValue)) yield SingleOptionShort(opt(exists, num)))
+  implicit val arbSingleOptionChar = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Char.MinValue, Char.MaxValue)) yield SingleOptionChar(opt(exists, num)))
 
 }
 
