@@ -84,142 +84,206 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   //Single Float
   test("Pickle a case class with a single float field") {
-    val obj = new SingleFloat(0.123F)
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro(0.123F, "/avro/single/SingleFloat.avsc") === pckl.value)
+    forAll {
+      (float: Float) =>
+        val obj = new SingleFloat(float)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(float, "/avro/single/SingleFloat.avsc") === pckl.value)
+
+    }
   }
 
   test("Unpickle a case class with a single float field") {
-    val bytes = generateSingleValueBytesFromAvro(0.123F, "/avro/single/SingleFloat.avsc")
-    val obj: SingleFloat = bytes.unpickle[SingleFloat]
-    assert(obj === new SingleFloat(0.123F))
+    forAll {
+      (float: Float) =>
+        val bytes = generateSingleValueBytesFromAvro(float, "/avro/single/SingleFloat.avsc")
+        val obj: SingleFloat = bytes.unpickle[SingleFloat]
+        assert(obj === new SingleFloat(float))
+    }
   }
 
   test("Round trip a case class with a single float field") {
-    val obj = new SingleFloat(0.123F)
-    val pckl = obj.pickle
-    val hydratedObj: SingleFloat = pckl.unpickle[SingleFloat]
-    assert(hydratedObj === obj)
+    forAll {
+      (float: Float) =>
+        val obj = new SingleFloat(float)
+        val pckl = obj.pickle
+        val hydratedObj: SingleFloat = pckl.unpickle[SingleFloat]
+        assert(hydratedObj === obj)
+    }
   }
 
   //Single Double
   test("Pickle a case class with a single double field") {
-    val obj = new SingleDouble(0.123)
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro(0.123D, "/avro/single/SingleDouble.avsc") === pckl.value)
+    forAll {
+      (double: Double) =>
+        val obj = new SingleDouble(double)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(double, "/avro/single/SingleDouble.avsc") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with a single double field") {
-    val bytes = generateSingleValueBytesFromAvro(0.123, "/avro/single/SingleDouble.avsc")
-    val obj: SingleDouble = bytes.unpickle[SingleDouble]
-    assert(obj === new SingleDouble(0.123))
+    forAll {
+      (double: Double) =>
+        val bytes = generateSingleValueBytesFromAvro(double, "/avro/single/SingleDouble.avsc")
+        val obj: SingleDouble = bytes.unpickle[SingleDouble]
+        assert(obj === new SingleDouble(double))
+    }
   }
 
   test("Round trip a case class with a single double field") {
-    val obj = new SingleDouble(0.123)
-    val pckl = obj.pickle
-    val hydratedObj: SingleDouble = pckl.unpickle[SingleDouble]
-    assert(hydratedObj === obj)
+    forAll {
+      (double: Double) =>
+        val obj = new SingleDouble(double)
+        val pckl = obj.pickle
+        val hydratedObj: SingleDouble = pckl.unpickle[SingleDouble]
+        assert(hydratedObj === obj)
+    }
   }
 
   //Single Boolean
   test("Pickle a case class with a single boolean field") {
-    val obj = new SingleBoolean(true)
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro(true, "/avro/single/SingleBoolean.avsc") === pckl.value)
+    forAll {
+      (boolean: Boolean) =>
+        val obj = new SingleBoolean(boolean)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(boolean, "/avro/single/SingleBoolean.avsc") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with a single boolean field") {
-    val bytes = generateSingleValueBytesFromAvro(true, "/avro/single/SingleBoolean.avsc")
-    val obj: SingleBoolean = bytes.unpickle[SingleBoolean]
-    assert(obj === new SingleBoolean(true))
+    forAll {
+      (boolean: Boolean) =>
+        val bytes = generateSingleValueBytesFromAvro(boolean, "/avro/single/SingleBoolean.avsc")
+        val obj: SingleBoolean = bytes.unpickle[SingleBoolean]
+        assert(obj === new SingleBoolean(boolean))
+    }
   }
 
   test("Round trip a case class with a single boolean field") {
-    val obj = new SingleBoolean(true)
-    val pckl = obj.pickle
-    val hydratedObj: SingleBoolean = pckl.unpickle[SingleBoolean]
-    assert(hydratedObj === obj)
+    forAll {
+      (boolean: Boolean) =>
+        val obj = new SingleBoolean(boolean)
+        val pckl = obj.pickle
+        val hydratedObj: SingleBoolean = pckl.unpickle[SingleBoolean]
+        assert(hydratedObj === obj)
+    }
   }
 
   //Single String
   test("Pickle a case class with a single string field") {
-    val obj = new SingleString("some crazy id")
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro("some crazy id", "/avro/single/SingleString.avsc") === pckl.value)
+    forAll {
+      (string: String) =>
+        val obj = new SingleString(string)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(string, "/avro/single/SingleString.avsc") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with a single string field") {
-    val bytes = generateSingleValueBytesFromAvro("some crazy id", "/avro/single/SingleString.avsc")
-    val obj: SingleString = bytes.unpickle[SingleString]
-    assert(obj === new SingleString("some crazy id"))
+    forAll {
+      (string: String) =>
+        val bytes = generateSingleValueBytesFromAvro(string, "/avro/single/SingleString.avsc")
+        val obj: SingleString = bytes.unpickle[SingleString]
+        assert(obj === new SingleString(string))
+    }
   }
 
   test("Round trip a case class with a single string field") {
-    val obj = new SingleString("some crazy id")
-    val pckl = obj.pickle
-    val hydratedObj: SingleString = pckl.unpickle[SingleString]
-    assert(hydratedObj === obj)
+    forAll {
+      (string: String) =>
+        val obj = new SingleString(string)
+        val pckl = obj.pickle
+        val hydratedObj: SingleString = pckl.unpickle[SingleString]
+        assert(hydratedObj === obj)
+    }
   }
 
   //Single Byte
   test("Pickle a case class with a single byte field") {
-    val obj = new SingleByte(1.toByte)
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro(1.toByte, "/avro/single/SingleByte.avsc") === pckl.value)
+    forAll {
+      (byte: Byte) =>
+        val obj = new SingleByte(byte)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(byte, "/avro/single/SingleByte.avsc") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with a single byte field") {
-    val bytes = generateSingleValueBytesFromAvro(1.toByte, "/avro/single/SingleByte.avsc")
-    val obj: SingleByte = bytes.unpickle[SingleByte]
-    assert(obj === new SingleByte(1.toByte))
+    forAll {
+      (byte: Byte) =>
+        val bytes = generateSingleValueBytesFromAvro(byte, "/avro/single/SingleByte.avsc")
+        val obj: SingleByte = bytes.unpickle[SingleByte]
+        assert(obj === new SingleByte(byte))
+    }
   }
 
   test("Round trip a case class with a single byte field") {
-    val obj = new SingleByte(1.toByte)
-    val pckl = obj.pickle
-    val hydratedObj: SingleByte = pckl.unpickle[SingleByte]
-    assert(hydratedObj === obj)
+    forAll {
+      (byte: Byte) =>
+        val obj = new SingleByte(byte)
+        val pckl = obj.pickle
+        val hydratedObj: SingleByte = pckl.unpickle[SingleByte]
+        assert(hydratedObj === obj)
+    }
   }
 
   //Single Short
   test("Pickle a case class with a single short field") {
-    val obj = new SingleShort(2)
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro(2, "/avro/single/SingleShort.avsc") === pckl.value)
+    forAll {
+      (short: Short) =>
+        val obj = new SingleShort(short)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(short, "/avro/single/SingleShort.avsc") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with a single short field") {
-    val bytes = generateSingleValueBytesFromAvro(2.toShort, "/avro/single/SingleShort.avsc")
-    val obj: SingleShort = bytes.unpickle[SingleShort]
-    assert(obj === new SingleShort(2.toShort))
+    forAll {
+      (short: Short) =>
+        val bytes = generateSingleValueBytesFromAvro(short, "/avro/single/SingleShort.avsc")
+        val obj: SingleShort = bytes.unpickle[SingleShort]
+        assert(obj === new SingleShort(short))
+    }
   }
 
   test("Round trip a case class with a single short field") {
-    val obj = new SingleShort(2.toShort)
-    val pckl = obj.pickle
-    val hydratedObj: SingleShort = pckl.unpickle[SingleShort]
-    assert(hydratedObj === obj)
+    forAll {
+      (short: Short) =>
+        val obj = new SingleShort(short)
+        val pckl = obj.pickle
+        val hydratedObj: SingleShort = pckl.unpickle[SingleShort]
+        assert(hydratedObj === obj)
+    }
   }
 
   //Single Char
   test("Pickle a case class with a single char field") {
-    val obj = new SingleChar('c')
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro('c'.toInt, "/avro/single/SingleChar.avsc") === pckl.value)
+    forAll {
+      (char: Char) =>
+        val obj = new SingleChar(char)
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(char.toInt, "/avro/single/SingleChar.avsc") === pckl.value)
+    }
   }
 
   test("Unpickle a case class with a single char field") {
-    val bytes = generateSingleValueBytesFromAvro('c'.toInt, "/avro/single/SingleChar.avsc")
-    val obj: SingleChar = bytes.unpickle[SingleChar]
-    assert(obj === new SingleChar('c'))
+    forAll {
+      (char: Char) =>
+        val bytes = generateSingleValueBytesFromAvro(char.toInt, "/avro/single/SingleChar.avsc")
+        val obj: SingleChar = bytes.unpickle[SingleChar]
+        assert(obj === new SingleChar(char))
+    }
   }
 
   test("Round trip a case class with a single char field") {
-    val obj = new SingleChar('c')
-    val pckl = obj.pickle
-    val hydratedObj: SingleChar = pckl.unpickle[SingleChar]
-    assert(hydratedObj === obj)
+    forAll {
+      (char: Char) =>
+        val obj = new SingleChar(char)
+        val pckl = obj.pickle
+        val hydratedObj: SingleChar = pckl.unpickle[SingleChar]
+        assert(hydratedObj === obj)
+    }
   }
 
   private def generateSingleValueBytesFromAvro(value: Any, schemaFileLocation: String): Array[Byte] = {
