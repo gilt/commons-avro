@@ -68,13 +68,13 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     assert(generateSingleValueBytesFromAvro(None, "/avro/option/SingleOptionInt.avsc") === pckl.value)
   }
 
-  ignore("Unpickle a case class with a single none int value") {
+  test("Unpickle a case class with a single none int value") {
     val bytes = generateSingleValueBytesFromAvro(None, "/avro/option/SingleOptionInt.avsc")
     val obj: SingleOptionInt = bytes.unpickle[SingleOptionInt]
     assert(obj === new SingleOptionInt(None))
   }
 
-  ignore("Round trip a case class with a single none int value") {
+  test("Round trip a case class with a single none int value") {
     val obj = new SingleOptionInt(None)
     val pckl = obj.pickle
     val hydratedObj: SingleOptionInt = pckl.unpickle[SingleOptionInt]

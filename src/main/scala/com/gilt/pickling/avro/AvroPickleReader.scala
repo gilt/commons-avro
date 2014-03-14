@@ -116,7 +116,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   private def buildFastTypeTagFromOption(tpe: ru.Type) : FastTypeTag[_] = {
     decoder.readLong() match {
       case 0L => buildSomeFastTypeTagFromOption(tpe)
-      case 1L => throw new PicklingException("Currupted input. Unable to determine status of option")
+      case 1L => FastTypeTag(mirror, KEY_NONE)
       case _ => throw new PicklingException("Currupted input. Unable to determine status of option")
     }
   }
