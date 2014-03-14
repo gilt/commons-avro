@@ -35,6 +35,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput)
         case KEY_ARRAY_SHORT => byteBuffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
         case KEY_ARRAY_CHAR => byteBuffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
         case KEY_NIL => byteBuffer.encodeByteArrayTo(Array.empty)
+        case KEY_NONE => byteBuffer.encodeLongTo(1)
         case key if key.startsWith(KEY_SOME) => byteBuffer.encodeLongTo(0) // TODO be nice to match against TypeRef
         case key =>
           //println(s"Unhandled begin entry: $key") //TODO remove
