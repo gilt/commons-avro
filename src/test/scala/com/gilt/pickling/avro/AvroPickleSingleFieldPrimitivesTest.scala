@@ -4,9 +4,9 @@ import org.apache.avro.generic.GenericData
 import org.apache.avro.Schema
 import org.scalatest.{Assertions, FunSuite}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import AvroPickleSingleFieldPrimitivesTest._
 import scala.pickling._
 import TestUtils._
+import org.scalacheck.{Gen, Arbitrary}
 
 
 object AvroPickleSingleFieldPrimitivesTest {
@@ -19,17 +19,28 @@ object AvroPickleSingleFieldPrimitivesTest {
   case class SingleByte(id: Byte)
   case class SingleShort(id: Short)
   case class SingleChar(id: Char)
+
+  implicit val arbSingleInt = Arbitrary(for (num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleInt(num))
+  implicit val arbSingleLong = Arbitrary(for (num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleLong(num))
+  implicit val arbSingleDouble = Arbitrary(for (num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleDouble(num))
+  implicit val arbSingleFloat = Arbitrary(for (num <- Gen.choose(Float.MinValue, Float.MaxValue)) yield SingleFloat(num))
+  implicit val arbSingleBoolean = Arbitrary(for (num <- Gen.oneOf(true, false)) yield SingleBoolean(num))
+  implicit val arbSingleString = Arbitrary(for (num <- Gen.alphaStr) yield SingleString(num))
+  implicit val arbSingleByte = Arbitrary(for (num <- Gen.choose(Byte.MinValue, Byte.MaxValue)) yield SingleByte(num))
+  implicit val arbSingleShort = Arbitrary(for (num <- Gen.choose(Short.MinValue, Short.MaxValue)) yield SingleShort(num))
+  implicit val arbSingleChar = Arbitrary(for (num <- Gen.choose(Char.MinValue, Char.MaxValue)) yield SingleChar(num))
 }
 
 class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
+  import AvroPickleSingleFieldPrimitivesTest._
+
   //Single Int
   test("Pickle a case class with a single int field") {
     forAll {
-      (int: Int) =>
-        val obj = new SingleInt(int)
+      (obj: SingleInt) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(int, "/avro/single/SingleInt.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleInt.avsc") === pckl.value)
     }
   }
 
@@ -44,8 +55,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single int field") {
     forAll {
-      (int: Int) =>
-        val obj = new SingleInt(int)
+      (obj: SingleInt) =>
         val pckl = obj.pickle
         val hydratedObj: SingleInt = pckl.unpickle[SingleInt]
         assert(hydratedObj === obj)
@@ -55,10 +65,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Long
   test("Pickle a case class with a single long field") {
     forAll {
-      (long: Long) =>
-        val obj = new SingleLong(long)
+      (obj: SingleLong) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(long, "/avro/single/SingleLong.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleLong.avsc") === pckl.value)
     }
   }
 
@@ -73,8 +82,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single long field") {
     forAll {
-      (long: Long) =>
-      val obj = new SingleLong(long)
+      (obj: SingleLong) =>
       val pckl = obj.pickle
       val hydratedObj: SingleLong = pckl.unpickle[SingleLong]
       assert(hydratedObj === obj)
@@ -84,10 +92,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Float
   test("Pickle a case class with a single float field") {
     forAll {
-      (float: Float) =>
-        val obj = new SingleFloat(float)
+      (obj: SingleFloat) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(float, "/avro/single/SingleFloat.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleFloat.avsc") === pckl.value)
 
     }
   }
@@ -103,8 +110,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single float field") {
     forAll {
-      (float: Float) =>
-        val obj = new SingleFloat(float)
+      (obj: SingleFloat) =>
         val pckl = obj.pickle
         val hydratedObj: SingleFloat = pckl.unpickle[SingleFloat]
         assert(hydratedObj === obj)
@@ -114,10 +120,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Double
   test("Pickle a case class with a single double field") {
     forAll {
-      (double: Double) =>
-        val obj = new SingleDouble(double)
+      (obj: SingleDouble) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(double, "/avro/single/SingleDouble.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleDouble.avsc") === pckl.value)
     }
   }
 
@@ -132,8 +137,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single double field") {
     forAll {
-      (double: Double) =>
-        val obj = new SingleDouble(double)
+      (obj: SingleDouble) =>
         val pckl = obj.pickle
         val hydratedObj: SingleDouble = pckl.unpickle[SingleDouble]
         assert(hydratedObj === obj)
@@ -143,10 +147,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Boolean
   test("Pickle a case class with a single boolean field") {
     forAll {
-      (boolean: Boolean) =>
-        val obj = new SingleBoolean(boolean)
+      (obj: SingleBoolean) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(boolean, "/avro/single/SingleBoolean.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleBoolean.avsc") === pckl.value)
     }
   }
 
@@ -161,8 +164,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single boolean field") {
     forAll {
-      (boolean: Boolean) =>
-        val obj = new SingleBoolean(boolean)
+      (obj: SingleBoolean) =>
         val pckl = obj.pickle
         val hydratedObj: SingleBoolean = pckl.unpickle[SingleBoolean]
         assert(hydratedObj === obj)
@@ -172,10 +174,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single String
   test("Pickle a case class with a single string field") {
     forAll {
-      (string: String) =>
-        val obj = new SingleString(string)
+      (obj: SingleString) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(string, "/avro/single/SingleString.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleString.avsc") === pckl.value)
     }
   }
 
@@ -190,8 +191,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single string field") {
     forAll {
-      (string: String) =>
-        val obj = new SingleString(string)
+      (obj: SingleString) =>
         val pckl = obj.pickle
         val hydratedObj: SingleString = pckl.unpickle[SingleString]
         assert(hydratedObj === obj)
@@ -201,10 +201,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Byte
   test("Pickle a case class with a single byte field") {
     forAll {
-      (byte: Byte) =>
-        val obj = new SingleByte(byte)
+      (obj: SingleByte) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(byte, "/avro/single/SingleByte.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleByte.avsc") === pckl.value)
     }
   }
 
@@ -219,8 +218,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single byte field") {
     forAll {
-      (byte: Byte) =>
-        val obj = new SingleByte(byte)
+      (obj: SingleByte) =>
         val pckl = obj.pickle
         val hydratedObj: SingleByte = pckl.unpickle[SingleByte]
         assert(hydratedObj === obj)
@@ -230,10 +228,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Short
   test("Pickle a case class with a single short field") {
     forAll {
-      (short: Short) =>
-        val obj = new SingleShort(short)
+      (obj: SingleShort) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(short, "/avro/single/SingleShort.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/single/SingleShort.avsc") === pckl.value)
     }
   }
 
@@ -248,8 +245,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single short field") {
     forAll {
-      (short: Short) =>
-        val obj = new SingleShort(short)
+      (obj: SingleShort) =>
         val pckl = obj.pickle
         val hydratedObj: SingleShort = pckl.unpickle[SingleShort]
         assert(hydratedObj === obj)
@@ -259,10 +255,9 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
   //Single Char
   test("Pickle a case class with a single char field") {
     forAll {
-      (char: Char) =>
-        val obj = new SingleChar(char)
+      (obj: SingleChar) =>
         val pckl = obj.pickle
-        assert(generateSingleValueBytesFromAvro(char.toInt, "/avro/single/SingleChar.avsc") === pckl.value)
+        assert(generateSingleValueBytesFromAvro(obj.id.toInt, "/avro/single/SingleChar.avsc") === pckl.value)
     }
   }
 
@@ -277,8 +272,7 @@ class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with 
 
   test("Round trip a case class with a single char field") {
     forAll {
-      (char: Char) =>
-        val obj = new SingleChar(char)
+      (obj: SingleChar) =>
         val pckl = obj.pickle
         val hydratedObj: SingleChar = pckl.unpickle[SingleChar]
         assert(hydratedObj === obj)
