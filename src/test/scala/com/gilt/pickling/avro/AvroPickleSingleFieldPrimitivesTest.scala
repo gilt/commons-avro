@@ -6,7 +6,6 @@ import org.scalatest.{Assertions, FunSuite}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import AvroPickleSingleFieldPrimitivesTest._
 import scala.pickling._
-import avro._
 import TestUtils._
 
 

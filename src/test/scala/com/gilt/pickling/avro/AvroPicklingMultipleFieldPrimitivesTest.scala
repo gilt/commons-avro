@@ -5,7 +5,6 @@ import org.apache.avro.Schema
 import com.gilt.pickling.avro.AvroPicklingMultipleFieldPrimitivesTest.MultipleField
 import org.apache.avro.generic.GenericData
 import scala.pickling._
-import avro._
 import TestUtils._
 
 

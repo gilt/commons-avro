@@ -1,6 +1,6 @@
 package com.gilt.pickling.avro
 
-import scala.reflect.runtime.universe.{typeOf, Mirror, TypeRef}
+import scala.reflect.runtime.universe.{typeOf, Mirror, TypeRef, TypeTag}
 import scala.reflect.runtime.{universe => ru}
 import scala.pickling.{PicklingException, FastTypeTag, PReader, PickleTools}
 import org.apache.avro.io.DecoderFactory

@@ -34,8 +34,6 @@ final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput)
         case KEY_ARRAY_BYTE => byteBuffer.encodeByteArrayTo(picklee.asInstanceOf[Array[Byte]])
         case KEY_ARRAY_SHORT => byteBuffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
         case KEY_ARRAY_CHAR => byteBuffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
-        case KEY_REF =>
-          println("This is a REF") //TODO remove
         case _ =>
           println("Unhandled begin entry") //TODO remove
       }

@@ -1,4 +1,4 @@
-package com.gilt.pickling.avro
+package com.gilt.pickling
 
 import scala.language.implicitConversions
 
