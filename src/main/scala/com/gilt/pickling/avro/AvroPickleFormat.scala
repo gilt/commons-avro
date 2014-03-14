@@ -29,6 +29,8 @@ class AvroPickleFormat extends PickleFormat {
   val KEY_ARRAY_SHORT = FastTypeTag.ArrayShort.key
   val KEY_ARRAY_CHAR = FastTypeTag.ArrayChar.key
 
+  val KEY_NIL = "scala.collection.immutable.Nil.type"
+
   val KEY_REF = FastTypeTag.Ref.key
 
   val primitives = Set(KEY_NULL, KEY_REF, KEY_BYTE, KEY_SHORT, KEY_CHAR, KEY_INT, KEY_LONG, KEY_BOOLEAN, KEY_FLOAT,
