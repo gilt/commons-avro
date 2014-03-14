@@ -15,23 +15,14 @@ import org.scalacheck.{Gen, Arbitrary}
 object AvroPicklingArrayOfPrimitivesTest {
 
   case class ArrayOfInts(list: Array[Int])
-
   case class ArrayOfLongs(list: Array[Long])
-
   case class ArrayOfDoubles(list: Array[Double])
-
   case class ArrayOfFloats(list: Array[Float])
-
   case class ArrayOfBooleans(list: Array[Boolean])
-
   case class ArrayOfStrings(list: Array[String])
-
   case class ArrayOfBytes(list: Array[Byte])
-
   case class ArrayOfShorts(list: Array[Short])
-
   case class ArrayOfChars(list: Array[Char])
-
 
   implicit val arbArrayOfInts = Arbitrary(for (nums <- Gen.containerOf[Array, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield ArrayOfInts(nums))
   implicit val arbArrayOfLongs = Arbitrary(for (nums <- Gen.containerOf[Array, Long](Gen.choose(Long.MinValue, Long.MaxValue))) yield ArrayOfLongs(nums))
