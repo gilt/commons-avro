@@ -66,7 +66,6 @@ class AvroPicklingSetOfPrimitivesTest extends FunSuite with Assertions with Gene
   }
 
   test("Round trip a case class with an set of ints") {
-    import binary._
     forAll {
       (obj: SetOfInts) =>
         val pckl = obj.pickle

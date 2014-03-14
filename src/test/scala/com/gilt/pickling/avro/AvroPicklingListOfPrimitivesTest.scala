@@ -47,7 +47,6 @@ class AvroPicklingListOfPrimitivesTest extends FunSuite with Assertions with Gen
   }
 
   test("Round trip a case class with an list of ints") {
-    import binary._
     forAll {
       (ints: List[Int]) =>
         val obj = ListOfInts(ints)
