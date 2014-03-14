@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.serialisation.generated",
+ "type": "record",
+ "name": "SetOfStrings",
+ "fields": [
+     {"name": "list", "type": {"type": "array", "items": "string"}}
+ ]
+}

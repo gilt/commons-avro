@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.serialisation.generated",
+ "type": "record",
+ "name": "SingleOptionLong",
+ "fields": [
+     {"name": "id", "type": ["long", "null"]}
+ ]
+}

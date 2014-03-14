@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.serialisation.generated",
+ "type": "record",
+ "name": "ArrayOfFloats",
+ "fields": [
+     {"name": "list", "type": {"type": "array", "items": "float"}}
+ ]
+}

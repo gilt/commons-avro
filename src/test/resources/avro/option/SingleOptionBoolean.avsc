@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.serialisation.generated",
+ "type": "record",
+ "name": "SingleOptionBoolean",
+ "fields": [
+     {"name": "id", "type": ["boolean", "null"]}
+ ]
+}
