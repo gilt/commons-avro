@@ -8,7 +8,6 @@ import scala.Some
 import org.apache.avro.generic.GenericData
 import scala.pickling._
 
-
 object AvroPickleSingleOptionalFieldPrimitivesTest {
   case class SingleOptionInt(id: Option[Int])
   case class SingleOptionLong(id: Option[Long])
@@ -23,7 +22,7 @@ object AvroPickleSingleOptionalFieldPrimitivesTest {
 
 class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertions{
   //Single Int
-  ignore("Pickle a case class with a single optional int field") {
+  test("Pickle a case class with a single optional int field") {
     val obj = new SingleOptionInt(Some(123))
     val pckl = obj.pickle
     assert(generateSingleValueBytesFromAvro(Some(123), "/avro/option/SingleOptionInt.avsc") === pckl.value)

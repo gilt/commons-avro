@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream
 
 class AvroEncodingOutput extends Output[Array[Byte]] {
   val stream = new ByteArrayOutputStream()
-  val encoder = EncoderFactory.get.binaryEncoder(stream, null)
+  val encoder = EncoderFactory.get.directBinaryEncoder(stream, null)
 
   override def put(obj: Array[Byte]): this.type = {
     encoder.flush()
