@@ -3,7 +3,7 @@ package com.gilt.pickling.avro
 import org.scalatest.{Assertions, FunSuite}
 import org.apache.avro.Schema
 import com.gilt.pickling.avro.TestUtils._
-import com.gilt.pickling.avro.AvroPickleSingleOptionalFieldPrimitivesTest.SingleOptionInt
+import com.gilt.pickling.avro.AvroPickleSingleOptionalFieldPrimitivesTest._
 import scala.Some
 import org.apache.avro.generic.GenericData
 import scala.pickling._
@@ -35,9 +35,9 @@ object AvroPickleSingleOptionalFieldPrimitivesTest {
 
 }
 
-class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks{
+class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
-  //Single Int
+  //Single Option Int
   test("Pickle a case class with a single optional int field") {
     forAll {
       (obj: SingleOptionInt) =>
@@ -64,23 +64,220 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     }
   }
 
-  test("Pickle a case class with a single none int value") {
-    val obj = new SingleOptionInt(None)
-    val pckl = obj.pickle
-    assert(generateSingleValueBytesFromAvro(None, "/avro/option/SingleOptionInt.avsc") === pckl.value)
+  //Single Option Long
+  test("Pickle a case class with a single optional long field") {
+    forAll {
+      (obj: SingleOptionLong) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionLong.avsc") === pckl.value)
+    }
   }
 
-  test("Unpickle a case class with a single none int value") {
-    val bytes = generateSingleValueBytesFromAvro(None, "/avro/option/SingleOptionInt.avsc")
-    val obj: SingleOptionInt = bytes.unpickle[SingleOptionInt]
-    assert(obj === new SingleOptionInt(None))
+  test("Unpickle a case class with a single optional long field") {
+    forAll {
+      (long: Long) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(long), "/avro/option/SingleOptionLong.avsc")
+        val obj: SingleOptionLong = bytes.unpickle[SingleOptionLong]
+        assert(obj === new SingleOptionLong(Some(long)))
+    }
   }
 
-  test("Round trip a case class with a single none int value") {
-    val obj = new SingleOptionInt(None)
-    val pckl = obj.pickle
-    val hydratedObj: SingleOptionInt = pckl.unpickle[SingleOptionInt]
-    assert(hydratedObj === obj)
+  test("Round trip a case class with a single optional long field") {
+    forAll {
+      (obj: SingleOptionLong) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionLong = pckl.unpickle[SingleOptionLong]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option Double
+  test("Pickle a case class with a single optional double field") {
+    forAll {
+      (obj: SingleOptionDouble) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionDouble.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional double field") {
+    forAll {
+      (double: Double) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(double), "/avro/option/SingleOptionDouble.avsc")
+        val obj: SingleOptionDouble = bytes.unpickle[SingleOptionDouble]
+        assert(obj === new SingleOptionDouble(Some(double)))
+    }
+  }
+
+  test("Round trip a case class with a single optional double field") {
+    forAll {
+      (obj: SingleOptionDouble) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionDouble = pckl.unpickle[SingleOptionDouble]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option Float
+  test("Pickle a case class with a single optional Float field") {
+    forAll {
+      (obj: SingleOptionFloat) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionFloat.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional Float field") {
+    forAll {
+      (float: Float) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(float), "/avro/option/SingleOptionFloat.avsc")
+        val obj: SingleOptionFloat = bytes.unpickle[SingleOptionFloat]
+        assert(obj === new SingleOptionFloat(Some(float)))
+    }
+  }
+
+  test("Round trip a case class with a single optional Float field") {
+    forAll {
+      (obj: SingleOptionFloat) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionFloat = pckl.unpickle[SingleOptionFloat]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option Boolean
+  test("Pickle a case class with a single optional Boolean field") {
+    forAll {
+      (obj: SingleOptionBoolean) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionBoolean.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional Boolean field") {
+    forAll {
+      (boolean: Boolean) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(boolean), "/avro/option/SingleOptionBoolean.avsc")
+        val obj: SingleOptionBoolean = bytes.unpickle[SingleOptionBoolean]
+        assert(obj === new SingleOptionBoolean(Some(boolean)))
+    }
+  }
+
+  test("Round trip a case class with a single optional Boolean field") {
+    forAll {
+      (obj: SingleOptionBoolean) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionBoolean = pckl.unpickle[SingleOptionBoolean]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option String
+  test("Pickle a case class with a single optional String field") {
+    forAll {
+      (obj: SingleOptionString) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionString.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional String field") {
+    forAll {
+      (string: String) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(string), "/avro/option/SingleOptionString.avsc")
+        val obj: SingleOptionString = bytes.unpickle[SingleOptionString]
+        assert(obj === new SingleOptionString(Some(string)))
+    }
+  }
+
+  test("Round trip a case class with a single optional String field") {
+    forAll {
+      (obj: SingleOptionString) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionString = pckl.unpickle[SingleOptionString]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option Byte
+  test("Pickle a case class with a single optional Byte field") {
+    forAll {
+      (obj: SingleOptionByte) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id.map(_.toInt), "/avro/option/SingleOptionByte.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional Byte field") {
+    forAll {
+      (byte: Byte) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(byte.toInt), "/avro/option/SingleOptionByte.avsc")
+        val obj: SingleOptionByte = bytes.unpickle[SingleOptionByte]
+        assert(obj === new SingleOptionByte(Some(byte)))
+    }
+  }
+
+  test("Round trip a case class with a single optional Byte field") {
+    forAll {
+      (obj: SingleOptionByte) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionByte = pckl.unpickle[SingleOptionByte]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option Short
+  test("Pickle a case class with a single optional Short field") {
+    forAll {
+      (obj: SingleOptionShort) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id.map(_.toInt), "/avro/option/SingleOptionShort.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional Short field") {
+    forAll {
+      (short: Short) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(short.toInt), "/avro/option/SingleOptionShort.avsc")
+        val obj: SingleOptionShort = bytes.unpickle[SingleOptionShort]
+        assert(obj === new SingleOptionShort(Some(short)))
+    }
+  }
+
+  test("Round trip a case class with a single optional Short field") {
+    forAll {
+      (obj: SingleOptionShort) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionShort = pckl.unpickle[SingleOptionShort]
+        assert(hydratedObj === obj)
+    }
+  }
+
+  //Single Option Char
+  test("Pickle a case class with a single optional Char field") {
+    forAll {
+      (obj: SingleOptionChar) =>
+        val pckl = obj.pickle
+        assert(generateSingleValueBytesFromAvro(obj.id.map(_.toInt), "/avro/option/SingleOptionChar.avsc") === pckl.value)
+    }
+  }
+
+  test("Unpickle a case class with a single optional Char field") {
+    forAll {
+      (char: Char) =>
+        val bytes = generateSingleValueBytesFromAvro(Some(char.toInt), "/avro/option/SingleOptionChar.avsc")
+        val obj: SingleOptionChar = bytes.unpickle[SingleOptionChar]
+        assert(obj === new SingleOptionChar(Some(char)))
+    }
+  }
+
+  test("Round trip a case class with a single optional Char field") {
+    forAll {
+      (obj: SingleOptionChar) =>
+        val pckl = obj.pickle
+        val hydratedObj: SingleOptionChar = pckl.unpickle[SingleOptionChar]
+        assert(hydratedObj === obj)
+    }
   }
 
   private def generateSingleValueBytesFromAvro(value: Option[_], schemaFileLocation: String): Array[Byte] = {
