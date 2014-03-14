@@ -5,7 +5,6 @@ import org.apache.avro.Schema
 import com.gilt.pickling.avro.TestUtils._
 import org.apache.avro.generic.GenericData
 import scala.pickling._
-import avro._
 import scala.collection.JavaConversions._
 import java.util.{List => JList}
 import AvroPicklingListOfPrimitivesTest._

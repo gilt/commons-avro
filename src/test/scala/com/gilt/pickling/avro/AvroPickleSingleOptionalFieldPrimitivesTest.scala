@@ -7,7 +7,6 @@ import com.gilt.pickling.avro.AvroPickleSingleOptionalFieldPrimitivesTest.Single
 import scala.Some
 import org.apache.avro.generic.GenericData
 import scala.pickling._
-import avro._
 
 
 object AvroPickleSingleOptionalFieldPrimitivesTest {
