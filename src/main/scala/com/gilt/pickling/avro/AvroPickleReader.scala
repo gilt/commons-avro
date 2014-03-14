@@ -14,9 +14,13 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   //TODO be nice to used a thread local for a reuse BinaryEncoder
   private val decoder = DecoderFactory.get.directBinaryDecoder(new ByteArrayInputStream(arr), null)
   private var _lastTagRead: FastTypeTag[_] = null
+
   private var collectionGenericType: Option[FastTypeTag[_]] = None
   private var collectionSize: Option[Long] = None
 
+  private val listType = typeOf[List[_]]
+  private val someType = typeOf[Some[_]]
+  private val optionType = typeOf[Option[_]]
   private val instantiableList = typeOf[::[Any]]
   private val anySymbol = typeOf[Any].typeSymbol
 
@@ -32,15 +36,12 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
         collectionGenericType match {
           case None =>
             val tpe = hints.tag.tpe
-            if (tpe <:< typeOf[List[_]]) {
-              val genericType = determineGenericTypeOfCollection(tpe)
-              val t = instantiableList.substituteSymbols(List(anySymbol), List(genericType.typeSymbol))
-              val tName = t.normalize.typeSymbol.fullName + "[" + genericType.normalize.typeSymbol.fullName + "]"
-              _lastTagRead = FastTypeTag(mirror, t, tName)
-            } else {
+            if (tpe <:< listType)
+              _lastTagRead = buildFastTypeTagWithInstantiableList(tpe) //handles the case that List does not have an empty constructor
+            else if (tpe <:< optionType)
+              _lastTagRead = buildFastTypeTagFromOption(tpe)
+            else
               _lastTagRead = hints.tag
-            }
-
           case Some(x) =>
             _lastTagRead = x
         }
@@ -88,7 +89,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     val tpe = _lastTagRead.tpe //TODO needs to be a option to be sure to be sure
 
     if (tpe <:< typeOf[Array[_]] || tpe <:< typeOf[List[_]] || tpe <:< typeOf[Set[_]]) {
-      val t = determineGenericTypeOfCollection(tpe)
+      val t = determineGenericType(tpe)
       collectionGenericType = Some(FastTypeTag(mirror, t, t.typeSymbol.fullName))
     } else
       throw new PicklingException("Collection is not supported")
@@ -112,6 +113,29 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     collectionGenericType = None
   }
 
+  private def buildFastTypeTagFromOption(tpe: ru.Type) : FastTypeTag[_] = {
+    decoder.readLong() match {
+      case 0L => buildSomeFastTypeTagFromOption(tpe)
+      case 1L => throw new PicklingException("Currupted input. Unable to determine status of option")
+      case _ => throw new PicklingException("Currupted input. Unable to determine status of option")
+    }
+  }
+
+  private def buildSomeFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] = {
+    val optionType = determineGenericType(tpe)
+    val s = someType.substituteSymbols(List(anySymbol), List(optionType.typeSymbol))
+    // TODO will need to handle Collections as well.
+    val sName = s.normalize.typeSymbol.fullName + "[" + optionType.normalize.typeSymbol.fullName + "]"
+    FastTypeTag(mirror, s, sName)
+  }
+
+  private def buildFastTypeTagWithInstantiableList(tpe: ru.Type): FastTypeTag[_] = {
+    val genericType = determineGenericType(tpe)
+    val t = instantiableList.substituteSymbols(List(anySymbol), List(genericType.typeSymbol))
+    val tName = t.normalize.typeSymbol.fullName + "[" + genericType.normalize.typeSymbol.fullName + "]"
+    FastTypeTag(mirror, t, tName)
+  }
+
   private def extractToArray[T: ClassTag](readFunction: () => T): Array[T] = {
     val items = new scala.collection.mutable.ArrayBuffer[T]
     val numberOfItems = decoder.readArrayStart()
@@ -119,7 +143,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     items.toArray
   }
 
-  private def determineGenericTypeOfCollection(tpe: ru.Type): ru.Type = {
+  private def determineGenericType(tpe: ru.Type): ru.Type = {
     tpe match {
       case TypeRef(_, _, genericType :: Nil) => genericType
       case _ => throw new PicklingException("Cannot determine generic type of collection")
