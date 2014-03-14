@@ -1,6 +1,6 @@
 gilt.GiltProject.jarSettings
 
-name := "pickling-avro"
+name := "commons-avro"
 
 scalaVersion := "2.10.3"
 
