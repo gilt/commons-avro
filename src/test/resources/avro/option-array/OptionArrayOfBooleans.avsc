@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionArrayOfBooleans",
  "fields": [
-     {"name": "list", "type": [{"type": "array", "items": "boolean"}, null]}}
+     {"name": "list", "type": [{"type": "array", "items": "boolean"}, "null"]}
  ]
 }

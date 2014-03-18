@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionArrayOfStrings",
  "fields": [
-     {"name": "list", "type": [{"type": "array", "items": "string"}, null]}}
+     {"name": "list", "type": [{"type": "array", "items": "string"}, "null"]}
  ]
 }
