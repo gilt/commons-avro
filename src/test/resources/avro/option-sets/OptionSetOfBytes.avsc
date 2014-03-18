@@ -1,5 +1,5 @@
 
-{"namespace": "com.gilt.serialisation.generated",
+{"namespace": "com.gilt.pickling.TestObjs",
  "type": "record",
  "name": "OptionSetOfBytes",
  "fields": [

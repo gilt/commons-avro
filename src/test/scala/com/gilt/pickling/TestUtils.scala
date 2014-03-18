@@ -2,9 +2,10 @@ package com.gilt.pickling
 
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Parser
-import java.io.{ByteArrayOutputStream, File}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File}
 import org.apache.avro.generic.{GenericRecord, GenericDatumWriter, GenericData}
 import org.apache.avro.io.{EncoderFactory, BinaryEncoder}
+import org.apache.avro.SchemaNormalization._
 
 object TestUtils {
 
@@ -22,4 +23,11 @@ object TestUtils {
     encoder.flush()
     out.toByteArray
   }
+
+  def fingerPrint(bytes: Array[Byte]): Array[Byte] = fingerPrint(new Parser().parse(new ByteArrayInputStream(bytes)))
+
+  def fingerPrint(filename:String): Array[Byte] = fingerPrint(retrieveAvroSchemaFromFile(filename))
+
+  def fingerPrint(schema: Schema) : Array[Byte] = parsingFingerprint("SHA-256", schema)
+
 }

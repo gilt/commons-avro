@@ -141,12 +141,11 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     items.toArray
   }
 
-  private def determineGenericType(tpe: ru.Type): ru.Type = {
+  private def determineGenericType(tpe: ru.Type): ru.Type =
     tpe match {
         // this only supports collections with a single type, so, not Map for example,
         // which returns a list of length 2 in the third position.
       case TypeRef(_, _, genericType :: Nil) => genericType
       case _ => throw new PicklingException(s"Cannot determine generic type of collection ($tpe)")
     }
-  }
 }
