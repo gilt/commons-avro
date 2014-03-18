@@ -1,11 +1,12 @@
 package com.gilt.pickling.avro
 
-import scala.reflect.runtime.universe.{typeOf, Mirror, TypeRef, TypeTag}
+import scala.reflect.runtime.universe.{typeOf, Mirror, TypeRef}
 import scala.reflect.runtime.{universe => ru}
 import scala.pickling.{PicklingException, FastTypeTag, PReader, PickleTools}
 import org.apache.avro.io.DecoderFactory
 import java.io.ByteArrayInputStream
 import scala.reflect.ClassTag
+import Tools._
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
 
@@ -18,9 +19,9 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   private var collectionGenericType: Option[FastTypeTag[_]] = None
   private var collectionSize: Option[Long] = None
 
-  private val listType = typeOf[List[_]]
-  private val someType = typeOf[Some[_]]
-  private val optionType = typeOf[Option[_]]
+  private val listType = typeOf[List[Any]]
+  private val someType = typeOf[Some[Any]]
+  private val optionType = typeOf[Option[Any]]
   private val instantiableList = typeOf[::[Any]]
   private val anySymbol = typeOf[Any].typeSymbol
 
@@ -105,7 +106,6 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     }
   }
 
-
   def readElement(): PReader = this
 
   def endCollection(): Unit = {
@@ -113,28 +113,28 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     collectionGenericType = None
   }
 
-  private def buildFastTypeTagFromOption(tpe: ru.Type) : FastTypeTag[_] = {
+  private def buildFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] = {
     decoder.readLong() match {
       case 0L => buildSomeFastTypeTagFromOption(tpe)
       case 1L => FastTypeTag(mirror, KEY_NONE)
-      case _ => throw new PicklingException("Currupted input. Unable to determine status of option")
+      case _ => throw new PicklingException("Corrupted input. Unable to determine status of option")
     }
   }
 
   private def buildSomeFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] = {
-    val optionType = determineGenericType(tpe)
-    val s = someType.substituteSymbols(List(anySymbol), List(optionType.typeSymbol))
-    // TODO will need to handle Collections as well.
-    val sName = s.normalize.typeSymbol.fullName + "[" + optionType.normalize.typeSymbol.fullName + "]"
-    FastTypeTag(mirror, s, sName)
+    val optionType = subsituteAnyInTypeWith(someType, determineGenericType(tpe))
+    FastTypeTag(mirror, optionType, optionType.key)
   }
 
   private def buildFastTypeTagWithInstantiableList(tpe: ru.Type): FastTypeTag[_] = {
-    val genericType = determineGenericType(tpe)
-    val t = instantiableList.substituteSymbols(List(anySymbol), List(genericType.typeSymbol))
-    val tName = t.normalize.typeSymbol.fullName + "[" + genericType.normalize.typeSymbol.fullName + "]"
-    FastTypeTag(mirror, t, tName)
+    val listType = subsituteAnyInTypeWith(instantiableList, determineGenericType(tpe))
+    FastTypeTag(mirror, listType, listType.key)
   }
+
+  private def subsituteAnyInTypeWith(rootType: ru.Type, to: ru.Type): ru.Type =
+    rootType.map {
+      t => if (t.typeSymbol == anySymbol) to else t
+    }
 
   private def extractToArray[T: ClassTag](readFunction: () => T): Array[T] = {
     val items = new scala.collection.mutable.ArrayBuffer[T]
