@@ -3,12 +3,9 @@ package com.gilt.pickling.avro
 import org.scalatest.{Assertions, FunSuite}
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import scala.collection.immutable.Queue
+import com.gilt.pickling.TestObjs._
 
 object AssortedCollectionTests {
-  case class VectorContainer(value: Vector[Int])
-  case class MapContainer(value: Map[Int, Int])
-  case class SeqContainer(value: Seq[Int])
 
   implicit val arbVc = Arbitrary {
     for(ints <- Gen.containerOf[Vector, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield VectorContainer(ints)

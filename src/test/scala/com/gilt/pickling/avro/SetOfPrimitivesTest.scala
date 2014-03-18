@@ -2,33 +2,16 @@ package com.gilt.pickling.avro
 
 import org.scalatest.{Assertions, FunSuite}
 import org.apache.avro.Schema
-import com.gilt.pickling.avro.TestUtils._
+import com.gilt.pickling.TestUtils
+import TestUtils._
 import org.apache.avro.generic.GenericData
 import scala.pickling._
 import scala.collection.JavaConversions._
 import java.util.{Set => JSet}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import com.gilt.pickling.TestObjs._
 
-object AvroPicklingSetOfPrimitivesTest {
-
-  case class SetOfInts(list: Set[Int])
-
-  case class SetOfLongs(list: Set[Long])
-
-  case class SetOfDoubles(list: Set[Double])
-
-  case class SetOfFloats(list: Set[Float])
-
-  case class SetOfBooleans(list: Set[Boolean])
-
-  case class SetOfStrings(list: Set[String])
-
-  case class SetOfBytes(list: Set[Byte])
-
-  case class SetOfShorts(list: Set[Short])
-
-  case class SetOfChars(list: Set[Char])
-
+object SetOfPrimitivesTest {
   import org.scalacheck.{Gen, Arbitrary}
 
   implicit val arbSetOfInts = Arbitrary(for (set <- Gen.containerOf[Set, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield SetOfInts(set))
@@ -42,9 +25,9 @@ object AvroPicklingSetOfPrimitivesTest {
   implicit val arbSetOfChars = Arbitrary(for (set <- Gen.containerOf[Set, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield SetOfChars(set))
 }
 
-class AvroPicklingSetOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
+class SetOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
-  import AvroPicklingSetOfPrimitivesTest._
+  import SetOfPrimitivesTest._
 
   // Array of Ints
   test("Pickle a case class with an set of ints") {

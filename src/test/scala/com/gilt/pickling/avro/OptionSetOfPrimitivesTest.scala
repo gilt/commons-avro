@@ -4,43 +4,35 @@ import org.scalacheck.{Gen, Arbitrary}
 import org.scalatest.{Assertions, FunSuite}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.apache.avro.Schema
-import com.gilt.pickling.avro.TestUtils._
-import com.gilt.pickling.avro.AvroPicklingOptionSetOfPrimitivesTest._
+import com.gilt.pickling.TestUtils
+import TestUtils._
+import com.gilt.pickling.avro.OptionSetOfPrimitivesTest._
 import org.apache.avro.generic.GenericData
 import scala.pickling._
 import scala.collection.JavaConverters._
+import com.gilt.pickling.TestObjs._
 
-object AvroPicklingOptionSetOfPrimitivesTest {
-  case class OptionSetOfInts(list: Option[Set[Int]])
-  case class OptionSetOfLongs(list: Option[Set[Long]])
-  case class OptionSetOfDoubles(list: Option[Set[Double]])
-  case class OptionSetOfFloats(list: Option[Set[Float]])
-  case class OptionSetOfBooleans(list: Option[Set[Boolean]])
-  case class OptionSetOfStrings(list: Option[Set[String]])
-  case class OptionSetOfBytes(list: Option[Set[Byte]])
-  case class OptionSetOfShorts(list: Option[Set[Short]])
-  case class OptionSetOfChars(list: Option[Set[Char]])
-
+object OptionSetOfPrimitivesTest {
   def opt[T](exists: Boolean, value: T) = if (exists) Some(value) else None
 
-  implicit val arbOptionSetOfInts = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield OptionSetOfInts(opt(exists, nums)))
-  implicit val arbOptionSetOfLongs = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Long](Gen.choose(Long.MinValue, Long.MaxValue))) yield OptionSetOfLongs(opt(exists, nums)))
-  implicit val arbOptionSetOfDoubles = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Double](Gen.choose(Double.MinValue / 2, Int.MaxValue / 2))) yield OptionSetOfDoubles(opt(exists, nums)))
-  implicit val arbOptionSetOfFloats = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Float](Gen.choose(Float.MinValue, Float.MaxValue))) yield OptionSetOfFloats(opt(exists, nums)))
-  implicit val arbOptionSetOfBooleans = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Boolean](Gen.oneOf(true, false))) yield OptionSetOfBooleans(opt(exists, nums)))
-  implicit val arbOptionSetOfStrings = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, String](Gen.alphaStr)) yield OptionSetOfStrings(opt(exists, nums)))
-  implicit val arbOptionSetOfBytes = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Byte](Gen.choose(Byte.MinValue, Byte.MaxValue))) yield OptionSetOfBytes(opt(exists, nums)))
-  implicit val arbOptionSetOfShorts = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Short](Gen.choose(Short.MinValue, Short.MaxValue))) yield OptionSetOfShorts(opt(exists, nums)))
-  implicit val arbOptionSetOfChars = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield OptionSetOfChars(opt(exists, nums)))
+  implicit val arbOptionSetOfInts = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield OpSetOfInts(opt(exists, nums)))
+  implicit val arbOptionSetOfLongs = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Long](Gen.choose(Long.MinValue, Long.MaxValue))) yield OpSetOfLongs(opt(exists, nums)))
+  implicit val arbOptionSetOfDoubles = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Double](Gen.choose(Double.MinValue / 2, Int.MaxValue / 2))) yield OpSetOfDoubles(opt(exists, nums)))
+  implicit val arbOptionSetOfFloats = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Float](Gen.choose(Float.MinValue, Float.MaxValue))) yield OpSetOfFloats(opt(exists, nums)))
+  implicit val arbOptionSetOfBooleans = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Boolean](Gen.oneOf(true, false))) yield OpSetOfBooleans(opt(exists, nums)))
+  implicit val arbOptionSetOfStrings = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, String](Gen.alphaStr)) yield OpSetOfStrings(opt(exists, nums)))
+  implicit val arbOptionSetOfBytes = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Byte](Gen.choose(Byte.MinValue, Byte.MaxValue))) yield OpSetOfBytes(opt(exists, nums)))
+  implicit val arbOptionSetOfShorts = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Short](Gen.choose(Short.MinValue, Short.MaxValue))) yield OpSetOfShorts(opt(exists, nums)))
+  implicit val arbOptionSetOfChars = Arbitrary(for (exists <- Gen.oneOf(true, false); nums <- Gen.containerOf[Set, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield OpSetOfChars(opt(exists, nums)))
 
 }
 
-class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks{
+class OptionSetOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks{
 
   // Set of Ints
   test("Pickle a case class with an optional list of ints") {
     forAll {
-      (obj: OptionSetOfInts) =>
+      (obj: OpSetOfInts) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfInts.avsc") === pckl.value)
     }
@@ -49,18 +41,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of ints") {
     forAll {
-      (obj: OptionSetOfInts) =>
+      (obj: OpSetOfInts) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfInts.avsc")
-        val hydratedObj: OptionSetOfInts = bytes.unpickle[OptionSetOfInts]
+        val hydratedObj: OpSetOfInts = bytes.unpickle[OpSetOfInts]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of ints") {
     forAll {
-      (obj: OptionSetOfInts) =>
+      (obj: OpSetOfInts) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfInts = pckl.unpickle[OptionSetOfInts]
+        val hydratedObj: OpSetOfInts = pckl.unpickle[OpSetOfInts]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -68,7 +60,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Longs
   test("Pickle a case class with an optional list of Longs") {
     forAll {
-      (obj: OptionSetOfLongs) =>
+      (obj: OpSetOfLongs) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfLongs.avsc") === pckl.value)
     }
@@ -76,18 +68,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Longs") {
     forAll {
-      (obj: OptionSetOfLongs) =>
+      (obj: OpSetOfLongs) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfLongs.avsc")
-        val hydratedObj: OptionSetOfLongs = bytes.unpickle[OptionSetOfLongs]
+        val hydratedObj: OpSetOfLongs = bytes.unpickle[OpSetOfLongs]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Longs") {
     forAll {
-      (obj: OptionSetOfLongs) =>
+      (obj: OpSetOfLongs) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfLongs = pckl.unpickle[OptionSetOfLongs]
+        val hydratedObj: OpSetOfLongs = pckl.unpickle[OpSetOfLongs]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -95,7 +87,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Doubles
   test("Pickle a case class with an optional list of Doubles") {
     forAll {
-      (obj: OptionSetOfDoubles) =>
+      (obj: OpSetOfDoubles) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfDoubles.avsc") === pckl.value)
     }
@@ -103,18 +95,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Doubles") {
     forAll {
-      (obj: OptionSetOfDoubles) =>
+      (obj: OpSetOfDoubles) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfDoubles.avsc")
-        val hydratedObj: OptionSetOfDoubles = bytes.unpickle[OptionSetOfDoubles]
+        val hydratedObj: OpSetOfDoubles = bytes.unpickle[OpSetOfDoubles]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Doubles") {
     forAll {
-      (obj: OptionSetOfDoubles) =>
+      (obj: OpSetOfDoubles) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfDoubles = pckl.unpickle[OptionSetOfDoubles]
+        val hydratedObj: OpSetOfDoubles = pckl.unpickle[OpSetOfDoubles]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -122,7 +114,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Floats
   test("Pickle a case class with an optional list of Floats") {
     forAll {
-      (obj: OptionSetOfFloats) =>
+      (obj: OpSetOfFloats) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfFloats.avsc") === pckl.value)
     }
@@ -130,18 +122,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Floats") {
     forAll {
-      (obj: OptionSetOfFloats) =>
+      (obj: OpSetOfFloats) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfFloats.avsc")
-        val hydratedObj: OptionSetOfFloats = bytes.unpickle[OptionSetOfFloats]
+        val hydratedObj: OpSetOfFloats = bytes.unpickle[OpSetOfFloats]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Floats") {
     forAll {
-      (obj: OptionSetOfFloats) =>
+      (obj: OpSetOfFloats) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfFloats = pckl.unpickle[OptionSetOfFloats]
+        val hydratedObj: OpSetOfFloats = pckl.unpickle[OpSetOfFloats]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -149,7 +141,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Booleans
   test("Pickle a case class with an optional list of Booleans") {
     forAll {
-      (obj: OptionSetOfBooleans) =>
+      (obj: OpSetOfBooleans) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfBooleans.avsc") === pckl.value)
     }
@@ -157,18 +149,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Booleans") {
     forAll {
-      (obj: OptionSetOfBooleans) =>
+      (obj: OpSetOfBooleans) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfBooleans.avsc")
-        val hydratedObj: OptionSetOfBooleans = bytes.unpickle[OptionSetOfBooleans]
+        val hydratedObj: OpSetOfBooleans = bytes.unpickle[OpSetOfBooleans]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Booleans") {
     forAll {
-      (obj: OptionSetOfBooleans) =>
+      (obj: OpSetOfBooleans) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfBooleans = pckl.unpickle[OptionSetOfBooleans]
+        val hydratedObj: OpSetOfBooleans = pckl.unpickle[OpSetOfBooleans]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -176,7 +168,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Strings
   test("Pickle a case class with an optional list of Strings") {
     forAll {
-      (obj: OptionSetOfStrings) =>
+      (obj: OpSetOfStrings) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfStrings.avsc") === pckl.value)
     }
@@ -184,18 +176,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Strings") {
     forAll {
-      (obj: OptionSetOfStrings) =>
+      (obj: OpSetOfStrings) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/option-sets/OptionSetOfStrings.avsc")
-        val hydratedObj: OptionSetOfStrings = bytes.unpickle[OptionSetOfStrings]
+        val hydratedObj: OpSetOfStrings = bytes.unpickle[OpSetOfStrings]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Strings") {
     forAll {
-      (obj: OptionSetOfStrings) =>
+      (obj: OpSetOfStrings) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfStrings = pckl.unpickle[OptionSetOfStrings]
+        val hydratedObj: OpSetOfStrings = pckl.unpickle[OpSetOfStrings]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -203,7 +195,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Bytes
   test("Pickle a case class with an optional list of Bytes") {
     forAll {
-      (obj: OptionSetOfBytes) =>
+      (obj: OpSetOfBytes) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list.map(_.map(_.toInt)), "/avro/option-sets/OptionSetOfBytes.avsc") === pckl.value)
     }
@@ -211,18 +203,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Bytes") {
     forAll {
-      (obj: OptionSetOfBytes) =>
+      (obj: OpSetOfBytes) =>
         val bytes = generateBytesFromAvro(obj.list.map(_.map(_.toInt)), "/avro/option-sets/OptionSetOfBytes.avsc")
-        val hydratedObj: OptionSetOfBytes = bytes.unpickle[OptionSetOfBytes]
+        val hydratedObj: OpSetOfBytes = bytes.unpickle[OpSetOfBytes]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Bytes") {
     forAll {
-      (obj: OptionSetOfBytes) =>
+      (obj: OpSetOfBytes) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfBytes = pckl.unpickle[OptionSetOfBytes]
+        val hydratedObj: OpSetOfBytes = pckl.unpickle[OpSetOfBytes]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -230,7 +222,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Chars
   test("Pickle a case class with an optional list of Chars") {
     forAll {
-      (obj: OptionSetOfChars) =>
+      (obj: OpSetOfChars) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list.map(_.map(_.toInt)), "/avro/option-sets/OptionSetOfChars.avsc") === pckl.value)
     }
@@ -238,18 +230,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Chars") {
     forAll {
-      (obj: OptionSetOfChars) =>
+      (obj: OpSetOfChars) =>
         val bytes = generateBytesFromAvro(obj.list.map(_.map(_.toInt)), "/avro/option-sets/OptionSetOfChars.avsc")
-        val hydratedObj: OptionSetOfChars = bytes.unpickle[OptionSetOfChars]
+        val hydratedObj: OpSetOfChars = bytes.unpickle[OpSetOfChars]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Chars") {
     forAll {
-      (obj: OptionSetOfChars) =>
+      (obj: OpSetOfChars) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfChars = pckl.unpickle[OptionSetOfChars]
+        val hydratedObj: OpSetOfChars = pckl.unpickle[OpSetOfChars]
         assert(obj.list === hydratedObj.list)
     }
   }
@@ -257,7 +249,7 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
   // Set of Shorts
   test("Pickle a case class with an optional list of Shorts") {
     forAll {
-      (obj: OptionSetOfShorts) =>
+      (obj: OpSetOfShorts) =>
         val pckl = obj.pickle
         assert(generateBytesFromAvro(obj.list.map(_.map(_.toInt)), "/avro/option-sets/OptionSetOfShorts.avsc") === pckl.value)
     }
@@ -265,18 +257,18 @@ class AvroPicklingOptionSetOfPrimitivesTest extends FunSuite with Assertions wit
 
   test("Unpickle a case class with an optional list of Shorts") {
     forAll {
-      (obj: OptionSetOfShorts) =>
+      (obj: OpSetOfShorts) =>
         val bytes = generateBytesFromAvro(obj.list.map(_.map(_.toInt)), "/avro/option-sets/OptionSetOfShorts.avsc")
-        val hydratedObj: OptionSetOfShorts = bytes.unpickle[OptionSetOfShorts]
+        val hydratedObj: OpSetOfShorts = bytes.unpickle[OpSetOfShorts]
         assert(obj.list === hydratedObj.list)
     }
   }
 
   test("Round trip a case class with an optional list of Shorts") {
     forAll {
-      (obj: OptionSetOfShorts) =>
+      (obj: OpSetOfShorts) =>
         val pckl = obj.pickle
-        val hydratedObj: OptionSetOfShorts = pckl.unpickle[OptionSetOfShorts]
+        val hydratedObj: OpSetOfShorts = pckl.unpickle[OpSetOfShorts]
         assert(obj.list === hydratedObj.list)
     }
   }

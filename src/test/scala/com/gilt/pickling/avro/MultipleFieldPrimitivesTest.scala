@@ -2,25 +2,14 @@ package com.gilt.pickling.avro
 
 import org.scalatest.{Assertions, FunSuite}
 import org.apache.avro.Schema
-import com.gilt.pickling.avro.AvroPicklingMultipleFieldPrimitivesTest.MultipleField
 import org.apache.avro.generic.GenericData
 import scala.pickling._
+import com.gilt.pickling.TestUtils
 import TestUtils._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import com.gilt.pickling.TestObjs._
 
-
-object AvroPicklingMultipleFieldPrimitivesTest {
-
-  case class MultipleField(intField: Int,
-                           longField: Long,
-                           doubleField: Double,
-                           floatField: Float,
-                           booleanField: Boolean,
-                           stringField: String,
-                           byteField: Byte,
-                           shortField: Short,
-                           charField: Char)
-
+object MultipleFieldPrimitivesTest {
 
   import org.scalacheck.Gen
   val genField: Gen[MultipleField] = for {
@@ -39,9 +28,9 @@ object AvroPicklingMultipleFieldPrimitivesTest {
   }
 }
 
-class AvroPicklingMultipleFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
+class MultipleFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
-  import AvroPicklingMultipleFieldPrimitivesTest.genField
+  import MultipleFieldPrimitivesTest.genField
 
   test("Pickle a case class with multiple fields") {
     forAll(genField) {

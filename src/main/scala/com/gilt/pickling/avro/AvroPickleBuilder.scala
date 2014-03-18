@@ -3,8 +3,7 @@ package com.gilt.pickling.avro
 import scala.pickling.{PicklingException, PBuilder, PickleTools}
 
 final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput) extends PBuilder with PickleTools {
-
-  import format._
+  import com.gilt.pickling.util.Types._
 
   private var byteBuffer: AvroEncodingOutput = out.asInstanceOf[AvroEncodingOutput]
 
@@ -25,7 +24,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, out: AvroEncodingOutput)
         case KEY_BYTE => byteBuffer.encodeByteTo(picklee.asInstanceOf[Byte])
         case KEY_SHORT => byteBuffer.encodeShortTo(picklee.asInstanceOf[Short])
         case KEY_CHAR => byteBuffer.encodeCharTo(picklee.asInstanceOf[Char])
-        case KEY_UNIT | KEY_NULL => throw new PicklingException("Not supported yet.")
+        case KEY_UNIT | KEY_NULL => throw new PicklingException("Not supported.")
         case KEY_ARRAY_INT => byteBuffer.encodeIntArrayTo(picklee.asInstanceOf[Array[Int]])
         case KEY_ARRAY_LONG => byteBuffer.encodeLongArrayTo(picklee.asInstanceOf[Array[Long]])
         case KEY_ARRAY_FLOAT => byteBuffer.encodeFloatArrayTo(picklee.asInstanceOf[Array[Float]])

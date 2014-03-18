@@ -5,21 +5,12 @@ import org.apache.avro.Schema
 import org.scalatest.{Assertions, FunSuite}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import scala.pickling._
+import com.gilt.pickling.TestUtils
 import TestUtils._
 import org.scalacheck.{Gen, Arbitrary}
+import com.gilt.pickling.TestObjs._
 
-
-object AvroPickleSingleFieldPrimitivesTest {
-  case class SingleInt(id: Int)
-  case class SingleLong(id: Long)
-  case class SingleDouble(id: Double)
-  case class SingleFloat(id: Float)
-  case class SingleBoolean(id: Boolean)
-  case class SingleString(id: String)
-  case class SingleByte(id: Byte)
-  case class SingleShort(id: Short)
-  case class SingleChar(id: Char)
-
+object SingleFieldTest {
   implicit val arbSingleInt = Arbitrary(for (num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleInt(num))
   implicit val arbSingleLong = Arbitrary(for (num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleLong(num))
   implicit val arbSingleDouble = Arbitrary(for (num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleDouble(num))
@@ -31,9 +22,9 @@ object AvroPickleSingleFieldPrimitivesTest {
   implicit val arbSingleChar = Arbitrary(for (num <- Gen.choose(Char.MinValue, Char.MaxValue)) yield SingleChar(num))
 }
 
-class AvroPickleSingleFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
+class SingleFieldTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
-  import AvroPickleSingleFieldPrimitivesTest._
+  import SingleFieldTest._
 
   //Single Int
   test("Pickle a case class with a single int field") {

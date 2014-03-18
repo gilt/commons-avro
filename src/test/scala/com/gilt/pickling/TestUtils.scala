@@ -1,4 +1,4 @@
-package com.gilt.pickling.avro
+package com.gilt.pickling
 
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Parser
@@ -22,5 +22,4 @@ object TestUtils {
     encoder.flush()
     out.toByteArray
   }
-
 }

@@ -2,45 +2,37 @@ package com.gilt.pickling.avro
 
 import org.scalatest.{Assertions, FunSuite}
 import org.apache.avro.Schema
-import com.gilt.pickling.avro.TestUtils._
-import com.gilt.pickling.avro.AvroPickleSingleOptionalFieldPrimitivesTest._
+import com.gilt.pickling.TestUtils
+import TestUtils._
+import com.gilt.pickling.avro.SingleOptionalFieldTest._
 import scala.Some
 import org.apache.avro.generic.GenericData
 import scala.pickling._
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import com.gilt.pickling.TestObjs._
 
-object AvroPickleSingleOptionalFieldPrimitivesTest {
-  case class SingleOptionInt(id: Option[Int])
-  case class SingleOptionLong(id: Option[Long])
-  case class SingleOptionDouble(id: Option[Double])
-  case class SingleOptionFloat(id: Option[Float])
-  case class SingleOptionBoolean(id: Option[Boolean])
-  case class SingleOptionString(id: Option[String])
-  case class SingleOptionByte(id: Option[Byte])
-  case class SingleOptionShort(id: Option[Short])
-  case class SingleOptionChar(id: Option[Char])
-
+object SingleOptionalFieldTest {
   def opt[T](exists: Boolean, value: T) = if (exists) Some(value) else None
 
-  implicit val arbSingleOptionInt = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleOptionInt(opt(exists,num)))
-  implicit val arbSingleOptionLong = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleOptionLong(opt(exists,num)))
-  implicit val arbSingleOptionDouble = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleOptionDouble(opt(exists, num)))
-  implicit val arbSingleOptionFloat = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Float.MinValue, Float.MaxValue)) yield SingleOptionFloat(opt(exists, num)))
-  implicit val arbSingleOptionBoolean = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.oneOf(true, false)) yield SingleOptionBoolean(opt(exists, num)))
-  implicit val arbSingleOptionString = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.alphaStr) yield SingleOptionString(opt(exists, num)))
-  implicit val arbSingleOptionByte = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Byte.MinValue, Byte.MaxValue)) yield SingleOptionByte(opt(exists, num)))
-  implicit val arbSingleOptionShort = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Short.MinValue, Short.MaxValue)) yield SingleOptionShort(opt(exists, num)))
-  implicit val arbSingleOptionChar = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Char.MinValue, Char.MaxValue)) yield SingleOptionChar(opt(exists, num)))
+  implicit val arbSingleOptionInt = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleOpInt(opt(exists,num)))
+  implicit val arbSingleOptionLong = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleOpLong(opt(exists,num)))
+  implicit val arbSingleOptionDouble = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleOpDouble(opt(exists, num)))
+  implicit val arbSingleOptionFloat = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Float.MinValue, Float.MaxValue)) yield SingleOpFloat(opt(exists, num)))
+  implicit val arbSingleOptionBoolean = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.oneOf(true, false)) yield SingleOpBoolean(opt(exists, num)))
+  implicit val arbSingleOptionString = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.alphaStr) yield SingleOpString(opt(exists, num)))
+  implicit val arbSingleOptionByte = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Byte.MinValue, Byte.MaxValue)) yield SingleOpByte(opt(exists, num)))
+  implicit val arbSingleOptionShort = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Short.MinValue, Short.MaxValue)) yield SingleOpShort(opt(exists, num)))
+  implicit val arbSingleOptionChar = Arbitrary(for (exists <- Gen.oneOf(true, false); num <- Gen.choose(Char.MinValue, Char.MaxValue)) yield SingleOpChar(opt(exists, num)))
 
 }
 
-class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
+class SingleOptionalFieldTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
   //Single Option Int
   test("Pickle a case class with a single optional int field") {
     forAll {
-      (obj: SingleOptionInt) =>
+      (obj: SingleOpInt) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionInt.avsc") === pckl.value)
     }
@@ -50,16 +42,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (int: Int) =>
         val bytes = generateSingleValueBytesFromAvro(Some(int), "/avro/option/SingleOptionInt.avsc")
-        val obj: SingleOptionInt = bytes.unpickle[SingleOptionInt]
-        assert(obj === new SingleOptionInt(Some(int)))
+        val obj: SingleOpInt = bytes.unpickle[SingleOpInt]
+        assert(obj === new SingleOpInt(Some(int)))
     }
   }
 
   test("Round trip a case class with a single optional int field") {
     forAll {
-      (obj: SingleOptionInt) =>
+      (obj: SingleOpInt) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionInt = pckl.unpickle[SingleOptionInt]
+        val hydratedObj: SingleOpInt = pckl.unpickle[SingleOpInt]
         assert(hydratedObj === obj)
     }
   }
@@ -67,7 +59,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Long
   test("Pickle a case class with a single optional long field") {
     forAll {
-      (obj: SingleOptionLong) =>
+      (obj: SingleOpLong) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionLong.avsc") === pckl.value)
     }
@@ -77,16 +69,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (long: Long) =>
         val bytes = generateSingleValueBytesFromAvro(Some(long), "/avro/option/SingleOptionLong.avsc")
-        val obj: SingleOptionLong = bytes.unpickle[SingleOptionLong]
-        assert(obj === new SingleOptionLong(Some(long)))
+        val obj: SingleOpLong = bytes.unpickle[SingleOpLong]
+        assert(obj === new SingleOpLong(Some(long)))
     }
   }
 
   test("Round trip a case class with a single optional long field") {
     forAll {
-      (obj: SingleOptionLong) =>
+      (obj: SingleOpLong) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionLong = pckl.unpickle[SingleOptionLong]
+        val hydratedObj: SingleOpLong = pckl.unpickle[SingleOpLong]
         assert(hydratedObj === obj)
     }
   }
@@ -94,7 +86,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Double
   test("Pickle a case class with a single optional double field") {
     forAll {
-      (obj: SingleOptionDouble) =>
+      (obj: SingleOpDouble) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionDouble.avsc") === pckl.value)
     }
@@ -104,16 +96,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (double: Double) =>
         val bytes = generateSingleValueBytesFromAvro(Some(double), "/avro/option/SingleOptionDouble.avsc")
-        val obj: SingleOptionDouble = bytes.unpickle[SingleOptionDouble]
-        assert(obj === new SingleOptionDouble(Some(double)))
+        val obj: SingleOpDouble = bytes.unpickle[SingleOpDouble]
+        assert(obj === new SingleOpDouble(Some(double)))
     }
   }
 
   test("Round trip a case class with a single optional double field") {
     forAll {
-      (obj: SingleOptionDouble) =>
+      (obj: SingleOpDouble) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionDouble = pckl.unpickle[SingleOptionDouble]
+        val hydratedObj: SingleOpDouble = pckl.unpickle[SingleOpDouble]
         assert(hydratedObj === obj)
     }
   }
@@ -121,7 +113,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Float
   test("Pickle a case class with a single optional Float field") {
     forAll {
-      (obj: SingleOptionFloat) =>
+      (obj: SingleOpFloat) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionFloat.avsc") === pckl.value)
     }
@@ -131,16 +123,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (float: Float) =>
         val bytes = generateSingleValueBytesFromAvro(Some(float), "/avro/option/SingleOptionFloat.avsc")
-        val obj: SingleOptionFloat = bytes.unpickle[SingleOptionFloat]
-        assert(obj === new SingleOptionFloat(Some(float)))
+        val obj: SingleOpFloat = bytes.unpickle[SingleOpFloat]
+        assert(obj === new SingleOpFloat(Some(float)))
     }
   }
 
   test("Round trip a case class with a single optional Float field") {
     forAll {
-      (obj: SingleOptionFloat) =>
+      (obj: SingleOpFloat) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionFloat = pckl.unpickle[SingleOptionFloat]
+        val hydratedObj: SingleOpFloat = pckl.unpickle[SingleOpFloat]
         assert(hydratedObj === obj)
     }
   }
@@ -148,7 +140,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Boolean
   test("Pickle a case class with a single optional Boolean field") {
     forAll {
-      (obj: SingleOptionBoolean) =>
+      (obj: SingleOpBoolean) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionBoolean.avsc") === pckl.value)
     }
@@ -158,16 +150,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (boolean: Boolean) =>
         val bytes = generateSingleValueBytesFromAvro(Some(boolean), "/avro/option/SingleOptionBoolean.avsc")
-        val obj: SingleOptionBoolean = bytes.unpickle[SingleOptionBoolean]
-        assert(obj === new SingleOptionBoolean(Some(boolean)))
+        val obj: SingleOpBoolean = bytes.unpickle[SingleOpBoolean]
+        assert(obj === new SingleOpBoolean(Some(boolean)))
     }
   }
 
   test("Round trip a case class with a single optional Boolean field") {
     forAll {
-      (obj: SingleOptionBoolean) =>
+      (obj: SingleOpBoolean) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionBoolean = pckl.unpickle[SingleOptionBoolean]
+        val hydratedObj: SingleOpBoolean = pckl.unpickle[SingleOpBoolean]
         assert(hydratedObj === obj)
     }
   }
@@ -175,7 +167,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option String
   test("Pickle a case class with a single optional String field") {
     forAll {
-      (obj: SingleOptionString) =>
+      (obj: SingleOpString) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id, "/avro/option/SingleOptionString.avsc") === pckl.value)
     }
@@ -185,16 +177,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (string: String) =>
         val bytes = generateSingleValueBytesFromAvro(Some(string), "/avro/option/SingleOptionString.avsc")
-        val obj: SingleOptionString = bytes.unpickle[SingleOptionString]
-        assert(obj === new SingleOptionString(Some(string)))
+        val obj: SingleOpString = bytes.unpickle[SingleOpString]
+        assert(obj === new SingleOpString(Some(string)))
     }
   }
 
   test("Round trip a case class with a single optional String field") {
     forAll {
-      (obj: SingleOptionString) =>
+      (obj: SingleOpString) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionString = pckl.unpickle[SingleOptionString]
+        val hydratedObj: SingleOpString = pckl.unpickle[SingleOpString]
         assert(hydratedObj === obj)
     }
   }
@@ -202,7 +194,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Byte
   test("Pickle a case class with a single optional Byte field") {
     forAll {
-      (obj: SingleOptionByte) =>
+      (obj: SingleOpByte) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id.map(_.toInt), "/avro/option/SingleOptionByte.avsc") === pckl.value)
     }
@@ -212,16 +204,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (byte: Byte) =>
         val bytes = generateSingleValueBytesFromAvro(Some(byte.toInt), "/avro/option/SingleOptionByte.avsc")
-        val obj: SingleOptionByte = bytes.unpickle[SingleOptionByte]
-        assert(obj === new SingleOptionByte(Some(byte)))
+        val obj: SingleOpByte = bytes.unpickle[SingleOpByte]
+        assert(obj === new SingleOpByte(Some(byte)))
     }
   }
 
   test("Round trip a case class with a single optional Byte field") {
     forAll {
-      (obj: SingleOptionByte) =>
+      (obj: SingleOpByte) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionByte = pckl.unpickle[SingleOptionByte]
+        val hydratedObj: SingleOpByte = pckl.unpickle[SingleOpByte]
         assert(hydratedObj === obj)
     }
   }
@@ -229,7 +221,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Short
   test("Pickle a case class with a single optional Short field") {
     forAll {
-      (obj: SingleOptionShort) =>
+      (obj: SingleOpShort) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id.map(_.toInt), "/avro/option/SingleOptionShort.avsc") === pckl.value)
     }
@@ -239,16 +231,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (short: Short) =>
         val bytes = generateSingleValueBytesFromAvro(Some(short.toInt), "/avro/option/SingleOptionShort.avsc")
-        val obj: SingleOptionShort = bytes.unpickle[SingleOptionShort]
-        assert(obj === new SingleOptionShort(Some(short)))
+        val obj: SingleOpShort = bytes.unpickle[SingleOpShort]
+        assert(obj === new SingleOpShort(Some(short)))
     }
   }
 
   test("Round trip a case class with a single optional Short field") {
     forAll {
-      (obj: SingleOptionShort) =>
+      (obj: SingleOpShort) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionShort = pckl.unpickle[SingleOptionShort]
+        val hydratedObj: SingleOpShort = pckl.unpickle[SingleOpShort]
         assert(hydratedObj === obj)
     }
   }
@@ -256,7 +248,7 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
   //Single Option Char
   test("Pickle a case class with a single optional Char field") {
     forAll {
-      (obj: SingleOptionChar) =>
+      (obj: SingleOpChar) =>
         val pckl = obj.pickle
         assert(generateSingleValueBytesFromAvro(obj.id.map(_.toInt), "/avro/option/SingleOptionChar.avsc") === pckl.value)
     }
@@ -266,16 +258,16 @@ class AvroPickleSingleOptionalFieldPrimitivesTest extends FunSuite with Assertio
     forAll {
       (char: Char) =>
         val bytes = generateSingleValueBytesFromAvro(Some(char.toInt), "/avro/option/SingleOptionChar.avsc")
-        val obj: SingleOptionChar = bytes.unpickle[SingleOptionChar]
-        assert(obj === new SingleOptionChar(Some(char)))
+        val obj: SingleOpChar = bytes.unpickle[SingleOpChar]
+        assert(obj === new SingleOpChar(Some(char)))
     }
   }
 
   test("Round trip a case class with a single optional Char field") {
     forAll {
-      (obj: SingleOptionChar) =>
+      (obj: SingleOpChar) =>
         val pckl = obj.pickle
-        val hydratedObj: SingleOptionChar = pckl.unpickle[SingleOptionChar]
+        val hydratedObj: SingleOpChar = pckl.unpickle[SingleOpChar]
         assert(hydratedObj === obj)
     }
   }

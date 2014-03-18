@@ -6,11 +6,10 @@ import scala.pickling.{PicklingException, FastTypeTag, PReader, PickleTools}
 import org.apache.avro.io.DecoderFactory
 import java.io.ByteArrayInputStream
 import scala.reflect.ClassTag
-import Tools._
+import com.gilt.pickling.util.Tools._
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
-
-  import format._
+  import com.gilt.pickling.util.Types._
 
   //TODO be nice to used a thread local for a reuse BinaryEncoder
   private val decoder = DecoderFactory.get.directBinaryDecoder(new ByteArrayInputStream(arr), null)
@@ -113,13 +112,12 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     collectionGenericType = None
   }
 
-  private def buildFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] = {
+  private def buildFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] =
     decoder.readLong() match {
       case 0L => buildSomeFastTypeTagFromOption(tpe)
       case 1L => FastTypeTag(mirror, KEY_NONE)
       case _ => throw new PicklingException("Corrupted input. Unable to determine status of option")
     }
-  }
 
   private def buildSomeFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] = {
     val optionType = subsituteAnyInTypeWith(someType, determineGenericType(tpe))

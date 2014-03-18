@@ -2,28 +2,19 @@ package com.gilt.pickling.avro
 
 import org.scalatest.{Assertions, FunSuite}
 import org.apache.avro.Schema
-import com.gilt.pickling.avro.TestUtils._
+import com.gilt.pickling.TestUtils
+import TestUtils._
 import org.apache.avro.generic.GenericData
 import scala.pickling._
 import scala.collection.JavaConversions._
 import java.util.{List => JList}
-import com.gilt.pickling.avro.AvroPicklingArrayOfPrimitivesTest._
+import com.gilt.pickling.avro.ArrayOfPrimitivesTest._
 import java.nio.ByteBuffer
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalacheck.{Gen, Arbitrary}
+import com.gilt.pickling.TestObjs._
 
-object AvroPicklingArrayOfPrimitivesTest {
-
-  case class ArrayOfInts(list: Array[Int])
-  case class ArrayOfLongs(list: Array[Long])
-  case class ArrayOfDoubles(list: Array[Double])
-  case class ArrayOfFloats(list: Array[Float])
-  case class ArrayOfBooleans(list: Array[Boolean])
-  case class ArrayOfStrings(list: Array[String])
-  case class ArrayOfBytes(list: Array[Byte])
-  case class ArrayOfShorts(list: Array[Short])
-  case class ArrayOfChars(list: Array[Char])
-
+object ArrayOfPrimitivesTest {
   implicit val arbArrayOfInts = Arbitrary(for (nums <- Gen.containerOf[Array, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield ArrayOfInts(nums))
   implicit val arbArrayOfLongs = Arbitrary(for (nums <- Gen.containerOf[Array, Long](Gen.choose(Long.MinValue, Long.MaxValue))) yield ArrayOfLongs(nums))
   implicit val arbArrayOfDoubles = Arbitrary(for (nums <- Gen.containerOf[Array, Double](Gen.choose(Double.MinValue / 2, Int.MaxValue / 2))) yield ArrayOfDoubles(nums))
@@ -35,7 +26,7 @@ object AvroPicklingArrayOfPrimitivesTest {
   implicit val arbArrayOfChars = Arbitrary(for (nums <- Gen.containerOf[Array, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield ArrayOfChars(nums))
 }
 
-class AvroPicklingArrayOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
+class ArrayOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
   // Array of Ints
   test("Pickle a case class with an array of ints") {

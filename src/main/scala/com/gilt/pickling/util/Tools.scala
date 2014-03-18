@@ -1,4 +1,4 @@
-package com.gilt.pickling.avro
+package com.gilt.pickling.util
 
 import scala.reflect.runtime.{universe => ru}
 import ru._
