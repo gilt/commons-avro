@@ -1,0 +1,8 @@
+
+{"namespace": "com.gilt.serialisation.generated",
+ "type": "record",
+ "name": "OptionSetOfBytes",
+ "fields": [
+     {"name": "list", "type": [{"type": "array", "items": "int"}, "null"]}
+ ]
+}

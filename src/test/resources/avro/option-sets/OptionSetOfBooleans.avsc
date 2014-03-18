@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.serialisation.generated",
+ "type": "record",
+ "name": "OptionSetOfBooleans",
+ "fields": [
+     {"name": "list", "type": [{"type": "array", "items": "boolean"}, "null"]}
+ ]
+}
