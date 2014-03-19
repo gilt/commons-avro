@@ -2,6 +2,6 @@
  "type": "record",
  "name": "SingleOptionByte",
  "fields": [
-     {"name": "id", "type": ["int", "null"]}
+     {"name": "id", "type": ["null", "int"]}
  ]
 }

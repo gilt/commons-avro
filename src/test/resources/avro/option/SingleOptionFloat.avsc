@@ -2,6 +2,6 @@
  "type": "record",
  "name": "SingleOptionFloat",
  "fields": [
-     {"name": "id", "type": ["float", "null"]}
+     {"name": "id", "type": ["null", "float"]}
  ]
 }
