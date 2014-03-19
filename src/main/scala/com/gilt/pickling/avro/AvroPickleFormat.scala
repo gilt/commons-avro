@@ -1,6 +1,6 @@
 package com.gilt.pickling.avro
 
-import scala.pickling.{PBuilder, FastTypeTag, PickleFormat}
+import scala.pickling.{PBuilder, PickleFormat}
 import scala.reflect.runtime.universe.Mirror
 
 class AvroPickleFormat extends PickleFormat {
