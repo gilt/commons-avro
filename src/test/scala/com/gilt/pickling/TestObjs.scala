@@ -97,4 +97,5 @@ object TestObjs {
 
   case class InnerObject(id: Int)
   case class SingleObject(inner:InnerObject)
+  case class SingleOptionObject(inner: Option[InnerObject])
 }
