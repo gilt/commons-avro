@@ -94,4 +94,7 @@ object TestObjs {
   case class OptionSetOfBytes(list: Option[Set[Byte]])
   case class OptionSetOfShorts(list: Option[Set[Short]])
   case class OptionSetOfChars(list: Option[Set[Char]])
+
+  case class InnerObject(id: Int)
+  case class SingleObject(inner:InnerObject)
 }
