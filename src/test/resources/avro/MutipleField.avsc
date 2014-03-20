@@ -1,6 +1,6 @@
 {"namespace": "com.gilt.pickling.TestObjs",
  "type": "record",
- "name": "SingleBoolean",
+ "name": "MultipleField",
  "fields": [
      {"name": "intField", "type": "int"},
      {"name": "longField", "type": "long"},

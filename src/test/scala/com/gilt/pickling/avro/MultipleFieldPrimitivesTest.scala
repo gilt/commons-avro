@@ -36,14 +36,14 @@ class MultipleFieldPrimitivesTest extends FunSuite with Assertions with Generato
     forAll(genField) {
       obj =>
         val pckl = obj.pickle
-        assert(generateBytesFromAvro(obj, "/avro/MutipleField.avsv") === pckl.value)
+        assert(generateBytesFromAvro(obj, "/avro/MutipleField.avsc") === pckl.value)
     }
   }
 
   test("Unpickle a case class with multiple fields") {
     forAll(genField) {
       obj =>
-        val bytes = generateBytesFromAvro(obj, "/avro/MutipleField.avsv")
+        val bytes = generateBytesFromAvro(obj, "/avro/MutipleField.avsc")
         val hydratedObj: MultipleField = bytes.unpickle[MultipleField]
         assert(obj === hydratedObj)
     }

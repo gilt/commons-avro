@@ -1,6 +1,6 @@
 {"namespace": "com.gilt.pickling.TestObjs",
  "type": "record",
- "name": "SingleOptionLong",
+ "name": "SingleOptionString",
  "fields": [
      {"name": "id", "type": ["null", "string"]}
  ]

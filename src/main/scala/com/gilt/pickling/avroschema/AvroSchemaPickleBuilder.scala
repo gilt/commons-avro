@@ -1,35 +1,55 @@
 package com.gilt.pickling.avroschema
 
 import scala.pickling._
-import scala.collection.mutable.Stack
+import scala.reflect.runtime.universe.TypeRef
 import scala.reflect.runtime.{universe => ru}
+import scala.collection.mutable
+import com.gilt.pickling.util.Types._
 import scala.pickling.PicklingException
+import scala.Some
 
 object AvroSchemaPickleBuilder {
-  val namespace = "{\"namespace\":\"".getBytes
-  val record = "\",\"type\":\"record\"".getBytes
-  val recordName = ",\"name\":\"".getBytes
+  private val namespace = """{"namespace":"""".getBytes
+  private val record = """","type":"record"""".getBytes
+  private val recordName = ""","name":"""".getBytes
 
-  val fields = "\",\"fields\":[".getBytes
-  val fieldName = "{\"name\":\"".getBytes
-  val fieldPeriod = "\",".getBytes
+  private val fields = """","fields":[""".getBytes
+  private val fieldName = """{"name":"""".getBytes
+  private val fieldType = """","type":""".getBytes
+  private val endCurlyBracket = "}".getBytes
+  private val endSquareBracket = "]".getBytes
+  private val comma = ",".getBytes
 
-  val intField = "\"type\":\"int\"}".getBytes
-  val longField = "\"type\":\"long\"}".getBytes
-  val doubleField = "\"type\":\"double\"}".getBytes
-  val floatField = "\"type\":\"float\"}".getBytes
-  val booleanField = "\"type\":\"boolean\"}".getBytes
-  val stringField = "\"type\":\"string\"}".getBytes
+  private val arrayBytesField = """"bytes"""".getBytes
+  private val arrayFieldStart = """{"type":"array","items":""".getBytes
+  private val optionalFieldStart = """["null",""".getBytes
 
+  private val optionType = ru.typeOf[Option[_]]
+  private val arrayType = ru.typeOf[Array[_]]
+  private val iterableType = ru.typeOf[Iterable[_]]
+
+  private val intField = """"int"""".getBytes
+  private val stringField = """"string"""".getBytes
+  private val primitiveSymbolToBytes = Map(
+    KEY_INT -> intField,
+    KEY_LONG -> """"long"""".getBytes,
+    KEY_FLOAT -> """"float"""".getBytes,
+    KEY_DOUBLE -> """"double"""".getBytes,
+    KEY_BOOLEAN -> """"boolean"""".getBytes,
+    KEY_BYTE -> intField,
+    KEY_CHAR -> intField,
+    KEY_SHORT -> intField,
+    KEY_SCALA_STRING -> stringField,
+    KEY_JAVA_STRING -> stringField
+  )
 }
 
 final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, out: AvroSchemaEncodingOutput) extends PBuilder with PickleTools {
-
-  import com.gilt.pickling.util.Types._
   import AvroSchemaPickleBuilder._
 
   private var byteBuffer: AvroSchemaEncodingOutput = out.asInstanceOf[AvroSchemaEncodingOutput]
-  private val tags = new Stack[FastTypeTag[_]]()
+  private val tags = new mutable.Stack[FastTypeTag[_]]()
+  private var fieldCount = 0
 
   @inline private[this] def mkByteBuffer(): Unit =
     if (byteBuffer == null)
@@ -38,47 +58,26 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, out: AvroSch
   @inline def beginEntry(picklee: Any): PBuilder = withHints {
     hints =>
       mkByteBuffer()
-      hints.tag.key match {
-        case KEY_INT => byteBuffer.put(intField)
-        case KEY_LONG => byteBuffer.put(longField)
-        case KEY_FLOAT => byteBuffer.put(floatField)
-        case KEY_DOUBLE => byteBuffer.put(doubleField)
-        case KEY_BOOLEAN => byteBuffer.put(booleanField)
-        case KEY_SCALA_STRING | KEY_JAVA_STRING => byteBuffer.put(stringField)
-        case KEY_BYTE => byteBuffer.put(intField)
-        case KEY_SHORT => byteBuffer.put(intField)
-        case KEY_CHAR => byteBuffer.put(intField)
-        //        case KEY_UNIT | KEY_NULL => throw new PicklingException("Not supported yet.")
-        //        case KEY_ARRAY_INT => byteBuffer.encodeIntArrayTo(picklee.asInstanceOf[Array[Int]])
-        //        case KEY_ARRAY_LONG => byteBuffer.encodeLongArrayTo(picklee.asInstanceOf[Array[Long]])
-        //        case KEY_ARRAY_FLOAT => byteBuffer.encodeFloatArrayTo(picklee.asInstanceOf[Array[Float]])
-        //        case KEY_ARRAY_DOUBLE => byteBuffer.encodeDoubleArrayTo(picklee.asInstanceOf[Array[Double]])
-        //        case KEY_ARRAY_BOOLEAN => byteBuffer.encodeBooleanArrayTo(picklee.asInstanceOf[Array[Boolean]])
-        //        case KEY_ARRAY_BYTE => byteBuffer.encodeByteArrayTo(picklee.asInstanceOf[Array[Byte]])
-        //        case KEY_ARRAY_SHORT => byteBuffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
-        //        case KEY_ARRAY_CHAR => byteBuffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
-        //        case KEY_NIL => byteBuffer.encodeByteArrayTo(Array.empty)
-        //        case KEY_NONE => byteBuffer.encodeLongTo(1)
-        //        case key if key.startsWith(KEY_SOME) => byteBuffer.encodeLongTo(0) // TODO be nice to match against TypeRef
-        case key =>
-          processObject(hints)
-      }
+      processObject(hints.tag)
       this
   }
 
   @inline def putField(name: String, pickler: PBuilder => Unit): PBuilder = {
+    if(fieldCount > 0) byteBuffer.put(comma)
     byteBuffer.put(fieldName)
     byteBuffer.put(name.getBytes)
-    byteBuffer.put(fieldPeriod)
-    pickler(this)
+    byteBuffer.put(fieldType)
+    byteBuffer.put(typeToBytes(extractFieldType(name, tags.top)))
+    byteBuffer.put(endCurlyBracket)
+    fieldCount += 1
     this
   }
 
-  @inline def endEntry(): Unit =
+  @inline def endEntry(): Unit = {
+    tags.pop()
     if (tags.length == 0)
       byteBuffer.put("]}".getBytes)
-    else
-      tags.pop()
+  }
 
   @inline def beginCollection(length: Int): PBuilder = this
 
@@ -88,23 +87,35 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, out: AvroSch
 
   @inline def result() = AvroSchemaPickle(byteBuffer.result())
 
-  private def processObject(hints: Hints) =
-    if (tags.length == 0)
-      processRootObject(hints)
-    else
-      throw new PicklingException("Not supporting nested objects yet.")
-
-  private def processRootObject(hints: Hints): AvroSchemaEncodingOutput = {
-    val typeSymbol = hints.tag.tpe.typeSymbol
+  private def processObject(tag: FastTypeTag[_]) = {
+    val typeSymbol = tag.tpe.typeSymbol
     if (typeSymbol.isClass && typeSymbol.asClass.isCaseClass) {
-      tags.push(hints.tag)
-      addPreamable(typeSymbol)
+      tags.push(tag)
+      addSchemaPreamable(typeSymbol)
     } else {
       throw new PicklingException("Only case classes are supported as root objects")
     }
   }
 
-  private def addPreamable(typeSymbol: ru.Symbol): AvroSchemaEncodingOutput = {
+  private def typeToBytes(tpe: ru.Type): Array[Byte] = {
+    import com.gilt.pickling.util.Tools._
+    tpe match {
+      case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
+      case t: TypeRef if t <:< ru.typeOf[Array[Byte]] => arrayBytesField
+      case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
+      case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
+      case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
+      case unknown => throw new PicklingException("Not supported yet")
+    }
+  }
+
+  private def extractFieldType(name: String, tag: FastTypeTag[_]): ru.Type =
+    tag.tpe.members.filter(!_.isMethod).find(_.name.decoded.trim == name) match {
+      case Some(t) => t.typeSignature
+      case _ => throw new PicklingException(s"Field $name cannot be found. Should not happen.")
+    }
+
+  private def addSchemaPreamable(typeSymbol: ru.Symbol) = {
     byteBuffer.put(namespace)
     byteBuffer.put(typeSymbol.owner.fullName.getBytes)
     byteBuffer.put(record)
