@@ -1,6 +1,6 @@
 package com.gilt.pickling.avro
 
-import com.gilt.pickling.TestObjs.{InnerObject, SingleObject, SingleOptionObject}
+import com.gilt.pickling.TestObjs.{InnerObject, SingleOptionObject}
 import org.apache.avro.Schema
 import com.gilt.pickling.TestUtils._
 import org.apache.avro.generic.GenericData
@@ -8,7 +8,7 @@ import scala.pickling._
 import org.scalatest.{Assertions, FunSuite}
 
 object SingleObjectOptionInnerTest {
-  val someObj = SingleOptionObject(Some(new InnerObject(1)))
+  val someObj = SingleOptionObject(Some(InnerObject(1)))
   val noneObj = SingleOptionObject(None)
 }
 
@@ -18,11 +18,11 @@ class SingleObjectOptionInnerTest extends FunSuite with Assertions {
 
   test("Pickle a case class with some inner case class") {
     val pckl = someObj.pickle
-    assert(generateSingleObjectValueBytesFromAvro(someObj) === pckl.value)
+    assert(generateBytesFromAvro(someObj) === pckl.value)
   }
 
   test("Unpickle a case class with some inner case class") {
-    val bytes = generateSingleObjectValueBytesFromAvro(someObj)
+    val bytes = generateBytesFromAvro(someObj)
     val hydratedObj: SingleOptionObject = bytes.unpickle[SingleOptionObject]
     assert(someObj === hydratedObj)
   }
@@ -33,7 +33,7 @@ class SingleObjectOptionInnerTest extends FunSuite with Assertions {
     assert(hydratedObj === someObj)
   }
 
-  private def generateSingleObjectValueBytesFromAvro(obj: SingleOptionObject) = {
+  private def generateBytesFromAvro(obj: SingleOptionObject) = {
     val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/SingleOptionObject.avsc")
     val innerSchema = schema.getField("inner").schema().getTypes.get(1)
 

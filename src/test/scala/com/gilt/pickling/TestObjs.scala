@@ -98,4 +98,7 @@ object TestObjs {
   case class InnerObject(id: Int)
   case class SingleObject(inner:InnerObject)
   case class SingleOptionObject(inner: Option[InnerObject])
+  case class ListOfObjects(list: List[InnerObject])
+  case class ArrayOfObjects(list: Array[InnerObject])
+  case class SetOfObjects(list: Set[InnerObject])
 }

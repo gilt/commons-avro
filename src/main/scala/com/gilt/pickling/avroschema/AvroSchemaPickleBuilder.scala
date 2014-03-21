@@ -105,7 +105,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, out: AvroSch
       case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
       case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
       case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
-      case unknown => throw new PicklingException("Not supported yet")
+      case unknown => throw new PicklingException("Not supported.")
     }
   }
 

@@ -1,13 +1,13 @@
 {
    "namespace":"com.gilt.pickling.TestObjs",
    "type":"record",
-   "name":"SingleOptionObject",
+   "name":"SetOfObjects",
    "fields":[
       {
-         "name":"inner",
-         "type":[
-            "null",
-            {
+         "name":"list",
+         "type":{
+            "type":"array",
+            "items":{
                "type":"record",
                "name":"InnerObject",
                "namespace":"com.gilt.pickling.TestObjs",
@@ -18,7 +18,7 @@
                   }
                ]
             }
-         ]
+         }
       }
    ]
 }

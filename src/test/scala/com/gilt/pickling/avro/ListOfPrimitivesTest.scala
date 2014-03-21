@@ -16,7 +16,7 @@ import org.scalacheck.{Gen, Arbitrary}
 object ListOfPrimitivesTest {
   implicit val arbListOfInts = Arbitrary(for (list <- Gen.containerOf[List, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield ListOfInts(list))
   implicit val arbListOfLongs = Arbitrary(for (list <- Gen.containerOf[List, Long](Gen.choose(Long.MinValue, Long.MaxValue))) yield ListOfLongs(list))
-  implicit val arbListOfDoubles = Arbitrary(for (list <- Gen.containerOf[List, Double](Gen.chooseNum(Double.MinValue/2, Double.MaxValue/2))) yield ListOfDoubles(list))
+  implicit val arbListOfDoubles = Arbitrary(for (list <- Gen.containerOf[List, Double](Gen.chooseNum(Double.MinValue / 2, Double.MaxValue / 2))) yield ListOfDoubles(list))
   implicit val arbListOfFloats = Arbitrary(for (list <- Gen.containerOf[List, Float](Gen.chooseNum(Float.MinValue, Float.MaxValue))) yield ListOfFloats(list))
   implicit val arbListOfBooleans = Arbitrary(for (list <- Gen.containerOf[List, Boolean](Gen.oneOf(true, false))) yield ListOfBooleans(list))
   implicit val arbListOfStrings = Arbitrary(for (list <- Gen.containerOf[List, String](Gen.alphaStr)) yield ListOfStrings(list))
@@ -44,6 +44,13 @@ class ListOfPrimitivesTest extends FunSuite with Assertions with GeneratorDriven
         val hydratedObj: ListOfInts = bytes.unpickle[ListOfInts]
         assert(obj.list === hydratedObj.list)
     }
+  }
+
+  test("Unpickle a case class with an list of ints1") {
+    val obj = ListOfInts(List(1, 2, 3, 4))
+    val bytes = generateBytesFromAvro(obj.list, "/avro/lists/ListOfInts.avsc")
+    val hydratedObj: ListOfInts = bytes.unpickle[ListOfInts]
+    assert(obj.list === hydratedObj.list)
   }
 
   test("Round trip a case class with an list of ints") {

@@ -8,18 +8,18 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 
 object SingleObjectInnerTest{
-  val obj = SingleObject(new InnerObject(1))
+  val obj = SingleObject(InnerObject(1))
 }
 
 class SingleObjectInnerTest extends FunSuite with Assertions {
   import SingleObjectInnerTest.obj
   test("Pickle a case class with inner case class") {
     val pckl = obj.pickle
-    assert(generateSingleObjectValueBytesFromAvro(obj) === pckl.value)
+    assert(generateBytesFromAvro(obj) === pckl.value)
   }
 
   test("Unpickle a case class with inner case class") {
-    val bytes = generateSingleObjectValueBytesFromAvro(obj)
+    val bytes = generateBytesFromAvro(obj)
     val hydratedObj: SingleObject = bytes.unpickle[SingleObject]
     assert(obj === hydratedObj)
   }
@@ -30,7 +30,7 @@ class SingleObjectInnerTest extends FunSuite with Assertions {
     assert(hydratedObj === obj)
   }
 
-  private def generateSingleObjectValueBytesFromAvro(obj: SingleObject) = {
+  private def generateBytesFromAvro(obj: SingleObject) = {
     val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/SingleObject.avsc")
     val innerSchema = schema.getField("inner").schema()
 
