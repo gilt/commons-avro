@@ -8,7 +8,7 @@ class AvroPickleFormat extends PickleFormat {
   type OutputType = AvroEncodingOutput
 
   def createBuilder() =
-    new AvroPickleBuilder(this, null)
+    new AvroPickleBuilder(this)
 
   def createBuilder(out: AvroEncodingOutput): PBuilder =
     new AvroPickleBuilder(this, out)

@@ -9,7 +9,7 @@ class AvroSchemaPickleFormat extends PickleFormat {
   type OutputType = AvroSchemaEncodingOutput
 
   def createBuilder() =
-    new AvroSchemaPickleBuilder(this, null)
+    new AvroSchemaPickleBuilder(this)
 
   def createBuilder(out: AvroSchemaEncodingOutput): PBuilder =
     new AvroSchemaPickleBuilder(this, out)
