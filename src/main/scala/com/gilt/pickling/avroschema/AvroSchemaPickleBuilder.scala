@@ -24,9 +24,9 @@ object AvroSchemaPickleBuilder {
   private val arrayFieldStart = """{"type":"array","items":""".getBytes
   private val optionalFieldStart = """["null",""".getBytes
 
-  val optionType = ru.typeOf[Option[_]]
-  val arrayType = ru.typeOf[Array[_]]
-  val iterableType = ru.typeOf[Iterable[_]]
+  private val optionType = ru.typeOf[Option[_]]
+  private val arrayType = ru.typeOf[Array[_]]
+  private val iterableType = ru.typeOf[Iterable[_]]
 
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
@@ -58,17 +58,18 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
   }
 
   @inline def putField(name: String, pickler: PBuilder => Unit): PBuilder = {
-    tags.top.tpe match {
-      case t: TypeRef if t <:< optionType => pickler(this) // skip option and process value
-      case _ => processField(name, pickler)
-    }
+    if (fieldCount > 0) buffer.put(comma)
+    buffer.put(fieldName ++ name.getBytes ++ fieldType)
+    buffer.put(typeToBytes(extractFieldType(name, tags.top)))
+    buffer.put(endCurlyBracket)
+    fieldCount += 1
     this
   }
 
   @inline def endEntry(): Unit = {
     tags.pop()
     if (tags.length == 0)
-      buffer.put("]}".getBytes)
+      buffer.put(endSquareBracket ++ endCurlyBracket)
   }
 
   @inline def beginCollection(length: Int): PBuilder = this
@@ -81,43 +82,35 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def processObject(tag: FastTypeTag[_]) = {
     tag.tpe match {
-      case t: TypeRef if t <:< optionType => tags.push(tag) // ignore options
       case TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
         tags.push(tag)
         buffer.put(recordSchemaPreamable(s))
-      case _ =>
-        throw new PicklingException("Only case classes are supported as root objects")
+      case _ => throw new PicklingException("Only case classes are supported as root objects")
     }
   }
 
-  private def processField(name: String, pickler: PBuilder => Unit) = {
-    if (fieldCount > 0) buffer.put(comma)
-    buffer.put(fieldName)
-    buffer.put(name.getBytes)
-    buffer.put(fieldType)
-    buffer.put(typeToBytes(extractFieldType(name, tags.top), pickler))
-    buffer.put(endCurlyBracket)
-    fieldCount += 1
-  }
-
-  private def typeToBytes(tpe: ru.Type, pickler: PBuilder => Unit): Array[Byte] = {
+  private def typeToBytes(tpe: ru.Type): Array[Byte] = {
     import com.gilt.pickling.util.Tools._
     tpe match {
       case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
       case t: TypeRef if t <:< ru.typeOf[Array[Byte]] => arrayBytesField
-      case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType, pickler) ++ endCurlyBracket
-      case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType, pickler) ++ endSquareBracket
+      case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
+      case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
+      case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
+        recordSchemaPreamable(s) ++ covertObjectFieldToSchema(t) ++ endSquareBracket ++ endCurlyBracket
       case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
-      case obj => convertObjectToSchema(pickler)
+      case _ => throw new PicklingException("Only case classes are supported")
     }
   }
 
+  private def covertObjectFieldToSchema(t: ru.TypeRef): Array[Byte] =
+    t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 
-  private def convertObjectToSchema(pickler: (PBuilder) => Unit): Array[Byte] = {
-    val buf = new AvroSchemaEncodingOutput()
-    pickler(format.createBuilder(buf))
-    buf.result()
-  }
+  private def objectFieldToSchema(sym: ru.Symbol): Array[Byte] =
+    fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
+
+  private def recordSchemaPreamable(typeSymbol: ru.Symbol): Array[Byte] =
+    namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
 
   private def extractFieldType(name: String, tag: FastTypeTag[_]): ru.Type =
     tag.tpe.members.filter(!_.isMethod).find(_.name.decoded.trim == name) match {
@@ -125,7 +118,4 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case _ => throw new PicklingException(s"Field $name cannot be found. Should not happen.")
     }
 
-  private def recordSchemaPreamable(typeSymbol: ru.Symbol): Array[Byte] =
-    namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
-  
 }
