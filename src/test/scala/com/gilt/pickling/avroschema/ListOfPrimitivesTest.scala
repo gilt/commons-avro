@@ -43,4 +43,40 @@ class ListOfPrimitivesTest extends FunSuite with Assertions {
     assert(fingerPrint("/avro/lists/ListOfShorts.avsc") === fingerPrint(ListOfShorts(List(1.toShort)).pickle.value))
   }
 
+  test("Generate schema from a case class with an empty list of int field") {
+    assert(fingerPrint("/avro/lists/ListOfInts.avsc") === fingerPrint(ListOfInts(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of long field") {
+    assert(fingerPrint("/avro/lists/ListOfLongs.avsc") === fingerPrint(ListOfLongs(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of double field") {
+    assert(fingerPrint("/avro/lists/ListOfDoubles.avsc") === fingerPrint(ListOfDoubles(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of float field") {
+    assert(fingerPrint("/avro/lists/ListOfFloats.avsc") === fingerPrint(ListOfFloats(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of boolean field") {
+    assert(fingerPrint("/avro/lists/ListOfBooleans.avsc") === fingerPrint(ListOfBooleans(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of string field") {
+    assert(fingerPrint("/avro/lists/ListOfStrings.avsc") === fingerPrint(ListOfStrings(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of char field") {
+    assert(fingerPrint("/avro/lists/ListOfChars.avsc") === fingerPrint(ListOfChars(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of byte field") {
+    assert(fingerPrint("/avro/lists/ListOfBytes.avsc") === fingerPrint(ListOfBytes(List()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an empty list of short field") {
+    assert(fingerPrint("/avro/lists/ListOfShorts.avsc") === fingerPrint(ListOfShorts(List()).pickle.value))
+  }
+
 }
