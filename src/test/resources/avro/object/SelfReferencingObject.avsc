@@ -1,0 +1,8 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "SelfReferencingObject",
+ "fields": [
+     {"name": "id", "type": "int"},
+     {"name": "inner", "type": ["null", "com.gilt.pickling.TestObjs.SelfReferencingObject"]}
+ ]
+}

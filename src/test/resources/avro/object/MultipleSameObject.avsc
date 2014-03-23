@@ -1,0 +1,16 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "MultipleSameObject",
+ "fields": [
+    {"name": "first", "type":
+        {"type": "record",
+         "name": "InnerObject",
+         "namespace": "com.gilt.pickling.TestObjs",
+         "fields": [
+            {"name": "id", "type": "int"}
+         ]
+        }
+    },
+    {"name": "second", "type": "com.gilt.pickling.TestObjs.InnerObject"}
+ ]
+}

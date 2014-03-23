@@ -47,9 +47,11 @@ object AvroSchemaPickleBuilder {
 final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: AvroSchemaEncodingOutput = new AvroSchemaEncodingOutput()) extends PBuilder with PickleTools {
 
   import AvroSchemaPickleBuilder._
+  import com.gilt.pickling.util.Tools._
 
-  private val tags = new mutable.Stack[FastTypeTag[_]]()
   private var fieldCount = 0
+  private val tags = new mutable.Stack[FastTypeTag[_]]()
+  private val generatedObjectCache = new mutable.HashSet[String]()
 
   @inline def beginEntry(picklee: Any): PBuilder = withHints {
     hints =>
@@ -80,30 +82,32 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   @inline def result() = AvroSchemaPickle(buffer.result())
 
-  private def processObject(tag: FastTypeTag[_]) = {
+  private def processObject(tag: FastTypeTag[_]) =
     tag.tpe match {
-      case TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
+      case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
         tags.push(tag)
+        generatedObjectCache += t.key
         buffer.put(recordSchemaPreamable(s))
       case _ => throw new PicklingException("Only case classes are supported as root objects")
     }
-  }
 
-  private def typeToBytes(tpe: ru.Type): Array[Byte] = {
-    import com.gilt.pickling.util.Tools._
+
+  private def typeToBytes(tpe: ru.Type): Array[Byte] =
     tpe match {
       case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
       case t: TypeRef if t <:< ru.typeOf[Array[Byte]] => arrayBytesField
       case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
       case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
+      case t: TypeRef if generatedObjectCache.contains(t.key) =>
+        s""""${t.key}"""".getBytes
       case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
-        recordSchemaPreamable(s) ++ covertObjectFieldToSchema(t) ++ endSquareBracket ++ endCurlyBracket
+        generatedObjectCache += t.key
+        recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(t) ++ endSquareBracket ++ endCurlyBracket
       case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
-  }
 
-  private def covertObjectFieldToSchema(t: ru.TypeRef): Array[Byte] =
+  private def covertObjectFieldsToSchema(t: ru.TypeRef): Array[Byte] =
     t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 
   private def objectFieldToSchema(sym: ru.Symbol): Array[Byte] =

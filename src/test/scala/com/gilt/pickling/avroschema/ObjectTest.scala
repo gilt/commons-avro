@@ -31,4 +31,11 @@ class ObjectTest extends FunSuite with Assertions{
     assert(fingerPrint("/avro/object/ArrayOfObjects.avsc") === fingerPrint(ArrayOfObjects(Array(new InnerObject(2))).pickle.value))
   }
 
+  test("Generate schema from a case class with multiple fields of the same inner case class") {
+    assert(fingerPrint("/avro/object/MultipleSameObject.avsc") === fingerPrint(MultipleSameObject(new InnerObject(2), new InnerObject(2)).pickle.value))
+  }
+
+  test("Generate schema from a self referencing case") {
+    assert(fingerPrint("/avro/object/SelfReferencingObject.avsc") === fingerPrint(SelfReferencingObject(1, Some(SelfReferencingObject(2, None))).pickle.value))
+  }
 }
