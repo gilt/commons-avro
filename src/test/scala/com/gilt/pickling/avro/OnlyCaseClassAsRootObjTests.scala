@@ -4,10 +4,6 @@ import org.scalatest.{Assertions, FunSuite}
 import scala.pickling._
 import com.gilt.pickling.TestObjs.{ObjInnerObject, ClassInnerObject}
 
-object OnlyCaseClassAsRootObjTests {
-
-}
-
 class OnlyCaseClassAsRootObjTests extends FunSuite with Assertions {
 
   test("Should not serialise an Object") {
@@ -174,11 +170,9 @@ class OnlyCaseClassAsRootObjTests extends FunSuite with Assertions {
   }
 
   test("Should not serialise a Unit") {
-    val someUnit: Unit = {
-      "String"
-    }
+    val someUnit: Unit = {"String"}
+    // a scala pickling error
     intercept[NotImplementedError] {
-      // a scala pickling error
       someUnit.pickle
     }
   }

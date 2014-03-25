@@ -1,13 +1,12 @@
 package com.gilt.pickling.util
 
-import scala.reflect.runtime.{universe => ru}
-import ru._
+import scala.reflect.runtime.universe.{TypeRef, Type, ClassSymbol, ExistentialType}
 
 object Tools {
   //TODO This is from scala.pickling.internal which is scooped as private.
   //TODO Optimisation is to cache type => String
   implicit class RichTypeFIXME(tpe: Type) {
-    import definitions._
+    import scala.reflect.runtime.universe.definitions.ArrayClass
     def key: String = {
       tpe.normalize match {
         case ExistentialType(tparams, TypeRef(pre, sym, targs))

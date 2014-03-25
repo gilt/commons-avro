@@ -9,7 +9,6 @@ import com.gilt.pickling.util.Tools._
 import scala.collection.mutable
 
 object AvroPickleReader {
-  private val listType = typeOf[List[Any]]
   private val instantiableList = typeOf[::[Any]]
   private val anySymbol = typeOf[Any].typeSymbol
 }
@@ -116,8 +115,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   private def determineNextTag(tag: FastTypeTag[_]): FastTypeTag[_] =
     tag.tpe match {
       case t: TypeRef if t.isEffectivelyPrimitive && isNotRootObject => tag
-      case t: TypeRef if (t <:< FastTypeTag.ScalaString.tpe || t <:< FastTypeTag.JavaString.tpe) && isNotRootObject =>
-        tag
+      case t: TypeRef if (t <:< FastTypeTag.ScalaString.tpe || t <:< FastTypeTag.JavaString.tpe) && isNotRootObject => tag
       case t: TypeRef if t <:< listType && parentIsACaseClassOrOption => buildFastTypeTagWithInstantiableList(t) //handles the case that List does not have an empty constructor
       case t: TypeRef if (t <:< iterableType || t <:< arrayType) && !(t <:< listType) && parentIsACaseClassOrOption => tag
       case t: TypeRef if t <:< optionType && parentIsACaseClass => buildFastTypeTagFromOption(t)

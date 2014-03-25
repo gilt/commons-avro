@@ -8,6 +8,7 @@ object Types {
   val someType = typeOf[Some[Any]]
   val iterableType = typeOf[Iterable[_]]
   val arrayType = typeOf[Array[_]]
+  val listType = typeOf[List[Any]]
   val optionType = typeOf[Option[_]]
 
   val KEY_NULL = FastTypeTag.Null.key

@@ -1,8 +1,7 @@
 package com.gilt.pickling.avroschema
 
 import scala.pickling._
-import scala.reflect.runtime.universe.TypeRef
-import scala.reflect.runtime.{universe => ru}
+import scala.reflect.runtime.universe.{TypeRef, ClassSymbol, Type, Symbol, typeOf}
 import scala.collection.mutable
 import com.gilt.pickling.util.Types._
 import scala.pickling.PicklingException
@@ -81,7 +80,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def processObject(tag: FastTypeTag[_]) =
     tag.tpe match {
-      case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
+      case t@TypeRef(_, s: ClassSymbol, _) if s.isCaseClass && !(t <:< listType) =>
         tags.push(tag)
         generatedObjectCache += t.key
         buffer.put(recordSchemaPreamable(s))
@@ -89,30 +88,30 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
     }
 
 
-  private def typeToBytes(tpe: ru.Type): Array[Byte] =
+  private def typeToBytes(tpe: Type): Array[Byte] =
     tpe match {
       case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
-      case t: TypeRef if t <:< ru.typeOf[Array[Byte]] => arrayBytesField
+      case t: TypeRef if t <:< typeOf[Array[Byte]] => arrayBytesField
       case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
       case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
       case t: TypeRef if generatedObjectCache.contains(t.key) => s""""${t.key}"""".getBytes
-      case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
+      case t@TypeRef(_, s: ClassSymbol, _) if s.isCaseClass =>
         generatedObjectCache += t.key
         recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(t) ++ endSquareBracket ++ endCurlyBracket
       case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
 
-  private def covertObjectFieldsToSchema(t: ru.TypeRef): Array[Byte] =
+  private def covertObjectFieldsToSchema(t: TypeRef): Array[Byte] =
     t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 
-  private def objectFieldToSchema(sym: ru.Symbol): Array[Byte] =
+  private def objectFieldToSchema(sym: Symbol): Array[Byte] =
     fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
 
-  private def recordSchemaPreamable(typeSymbol: ru.Symbol): Array[Byte] =
+  private def recordSchemaPreamable(typeSymbol: Symbol): Array[Byte] =
     namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
 
-  private def extractFieldType(name: String, tag: FastTypeTag[_]): ru.Type =
+  private def extractFieldType(name: String, tag: FastTypeTag[_]): Type =
     tag.tpe.members.filter(!_.isMethod).find(_.name.decoded.trim == name) match {
       case Some(t) => t.typeSignature
       case _ => throw new PicklingException(s"Field $name cannot be found. Should not happen.")
