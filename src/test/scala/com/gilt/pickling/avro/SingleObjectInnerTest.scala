@@ -7,12 +7,14 @@ import com.gilt.pickling.TestUtils._
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 
-object SingleObjectInnerTest{
+object SingleObjectInnerTest {
   val obj = SingleObject(InnerObject(1))
 }
 
 class SingleObjectInnerTest extends FunSuite with Assertions {
+
   import SingleObjectInnerTest.obj
+
   test("Pickle a case class with inner case class") {
     val pckl = obj.pickle
     assert(generateBytesFromAvro(obj) === pckl.value)

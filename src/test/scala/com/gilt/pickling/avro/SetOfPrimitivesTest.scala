@@ -12,11 +12,12 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import com.gilt.pickling.TestObjs._
 
 object SetOfPrimitivesTest {
+
   import org.scalacheck.{Gen, Arbitrary}
 
   implicit val arbSetOfInts = Arbitrary(for (set <- Gen.containerOf[Set, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield SetOfInts(set))
   implicit val arbSetOfLongs = Arbitrary(for (set <- Gen.containerOf[Set, Long](Gen.choose(Long.MinValue, Long.MaxValue))) yield SetOfLongs(set))
-  implicit val arbSetOfDoubles = Arbitrary(for (set <- Gen.containerOf[Set, Double](Gen.chooseNum(Double.MinValue/2, Double.MaxValue/2))) yield SetOfDoubles(set))
+  implicit val arbSetOfDoubles = Arbitrary(for (set <- Gen.containerOf[Set, Double](Gen.chooseNum(Double.MinValue / 2, Double.MaxValue / 2))) yield SetOfDoubles(set))
   implicit val arbSetOfFloats = Arbitrary(for (set <- Gen.containerOf[Set, Float](Gen.chooseNum(Float.MinValue, Float.MaxValue))) yield SetOfFloats(set))
   implicit val arbSetOfBooleans = Arbitrary(for (set <- Gen.containerOf[Set, Boolean](Gen.oneOf(true, false))) yield SetOfBooleans(set))
   implicit val arbSetOfStrings = Arbitrary(for (set <- Gen.containerOf[Set, String](Gen.alphaStr)) yield SetOfStrings(set))

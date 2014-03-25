@@ -8,11 +8,12 @@ import org.apache.avro.generic.GenericData
 import org.scalatest.{Assertions, FunSuite}
 import scala.pickling._
 
-object ComplexObjectsTest{
+object ComplexObjectsTest {
   val selfRef = SelfReferencingObject(1, Some(SelfReferencingObject(2, None)))
 }
 
-class ComplexObjectsTest extends FunSuite with Assertions{
+class ComplexObjectsTest extends FunSuite with Assertions {
+
   import ComplexObjectsTest._
 
   test("Pickle a case class with self references obj") {

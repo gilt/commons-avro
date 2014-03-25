@@ -14,38 +14,39 @@ object ArrayOfObjectsTest {
 
 class ArrayOfObjectsTest extends FunSuite with Assertions {
 
-   import ArrayOfObjectsTest.obj
+  import ArrayOfObjectsTest.obj
 
-   test("Pickle a case class with a array of objects") {
-     val pckl = obj.pickle
-     assert(generateBytesFromAvro(obj) === pckl.value)
-   }
+  test("Pickle a case class with a array of objects") {
+    val pckl = obj.pickle
+    assert(generateBytesFromAvro(obj) === pckl.value)
+  }
 
-   test("Unpickle a case class with a array of objects") {
-     val bytes = generateBytesFromAvro(obj)
-     val hydratedObj: ArrayOfObjects = bytes.unpickle[ArrayOfObjects]
-     assert(obj.list === hydratedObj.list)
-   }
+  test("Unpickle a case class with a array of objects") {
+    val bytes = generateBytesFromAvro(obj)
+    val hydratedObj: ArrayOfObjects = bytes.unpickle[ArrayOfObjects]
+    assert(obj.list === hydratedObj.list)
+  }
 
-   test("Round trip a case class with a array of objects") {
-     val pckl = obj.pickle
-     val hydratedObj: ArrayOfObjects = pckl.unpickle[ArrayOfObjects]
-     assert(hydratedObj.list === obj.list)
-   }
+  test("Round trip a case class with a array of objects") {
+    val pckl = obj.pickle
+    val hydratedObj: ArrayOfObjects = pckl.unpickle[ArrayOfObjects]
+    assert(hydratedObj.list === obj.list)
+  }
 
-   private def generateBytesFromAvro(obj: ArrayOfObjects) = {
-     val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/ArrayOfObjects.avsc")
-     val innerSchema = schema.getField("list").schema().getElementType
+  private def generateBytesFromAvro(obj: ArrayOfObjects) = {
+    val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/ArrayOfObjects.avsc")
+    val innerSchema = schema.getField("list").schema().getElementType
 
-     val list = obj.list.map{ inner =>
-       val innerRecord = new GenericData.Record(innerSchema)
-       innerRecord.put("id", inner.id)
-       innerRecord
-     }
+    val list = obj.list.map {
+      inner =>
+        val innerRecord = new GenericData.Record(innerSchema)
+        innerRecord.put("id", inner.id)
+        innerRecord
+    }
 
-     val record = new GenericData.Record(schema)
-     record.put("list", list.toList.asJava)
+    val record = new GenericData.Record(schema)
+    record.put("list", list.toList.asJava)
 
-     convertToBytes(schema, record)
-   }
- }
+    convertToBytes(schema, record)
+  }
+}

@@ -8,11 +8,11 @@ import com.gilt.pickling.TestObjs._
 object AssortedCollectionTests {
 
   implicit val arbVc = Arbitrary {
-    for(ints <- Gen.containerOf[Vector, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield VectorContainer(ints)
+    for (ints <- Gen.containerOf[Vector, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield VectorContainer(ints)
   }
 
   implicit val arbSc = Arbitrary {
-    for(ints <- Gen.containerOf[Seq, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield SeqContainer(ints)
+    for (ints <- Gen.containerOf[Seq, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield SeqContainer(ints)
   }
 
   implicit val arbMc = Arbitrary {
@@ -44,7 +44,8 @@ class AssortedCollectionTests extends FunSuite with Assertions with GeneratorDri
     }
   }
 
-  ignore("map roundtrip") {     // doesn't work yet because we don't know how to deal with collections of 2 types
+  ignore("map roundtrip") {
+    // doesn't work yet because we don't know how to deal with collections of 2 types
     forAll {
       (obj: MapContainer) =>
         if (!obj.value.isEmpty) assert(obj === obj.pickle.unpickle[MapContainer])

@@ -9,45 +9,46 @@ import org.scalatest.{Assertions, FunSuite}
 import scala.pickling._
 
 
-object MultipleSameObjectsTest{
+object MultipleSameObjectsTest {
   val obj = MultipleSameObject(InnerObject(1), InnerObject(2))
 }
 
-class MultipleSameObjectsTest extends FunSuite with Assertions{
-   import MultipleSameObjectsTest._
+class MultipleSameObjectsTest extends FunSuite with Assertions {
 
-   test("Pickle a case class with multiple same objects") {
-     val pckl = obj.pickle
-     assert(generateBytesFromAvro(obj) === pckl.value)
-   }
+  import MultipleSameObjectsTest._
 
-   test("Unpickle a case class with multiple same objects") {
-     val bytes = generateBytesFromAvro(obj)
-     val hydratedObj: MultipleSameObject = bytes.unpickle[MultipleSameObject]
-     assert(obj === hydratedObj)
-   }
+  test("Pickle a case class with multiple same objects") {
+    val pckl = obj.pickle
+    assert(generateBytesFromAvro(obj) === pckl.value)
+  }
 
-   test("Round trip a case class with multiple same objects") {
-     val pckl = obj.pickle
-     val hydratedObj: MultipleSameObject = pckl.unpickle[MultipleSameObject]
-     assert(hydratedObj === obj)
-   }
+  test("Unpickle a case class with multiple same objects") {
+    val bytes = generateBytesFromAvro(obj)
+    val hydratedObj: MultipleSameObject = bytes.unpickle[MultipleSameObject]
+    assert(obj === hydratedObj)
+  }
 
-   private def generateBytesFromAvro(obj: MultipleSameObject) = {
-     val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/MultipleSameObject.avsc")
+  test("Round trip a case class with multiple same objects") {
+    val pckl = obj.pickle
+    val hydratedObj: MultipleSameObject = pckl.unpickle[MultipleSameObject]
+    assert(hydratedObj === obj)
+  }
 
-     val innerSchema = schema.getField("first").schema()
+  private def generateBytesFromAvro(obj: MultipleSameObject) = {
+    val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/MultipleSameObject.avsc")
 
-     val innerRecordA = new GenericData.Record(innerSchema)
-     innerRecordA.put("id", obj.first.id)
+    val innerSchema = schema.getField("first").schema()
 
-     val innerRecordB = new GenericData.Record(innerSchema)
-     innerRecordB.put("id", obj.second.id)
+    val innerRecordA = new GenericData.Record(innerSchema)
+    innerRecordA.put("id", obj.first.id)
 
-     val record = new GenericData.Record(schema)
-     record.put("first", innerRecordA)
-     record.put("second", innerRecordB)
+    val innerRecordB = new GenericData.Record(innerSchema)
+    innerRecordB.put("id", obj.second.id)
 
-     convertToBytes(schema, record)
-   }
- }
+    val record = new GenericData.Record(schema)
+    record.put("first", innerRecordA)
+    record.put("second", innerRecordB)
+
+    convertToBytes(schema, record)
+  }
+}

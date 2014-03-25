@@ -12,6 +12,7 @@ import com.gilt.pickling.TestObjs._
 object MultipleFieldPrimitivesTest {
 
   import org.scalacheck.Gen
+
   val genField: Gen[MultipleField] = for {
     intField <- Gen.choose(Int.MinValue, Int.MaxValue)
     longField <- Gen.choose(Long.MinValue, Long.MaxValue)

@@ -27,7 +27,7 @@ object OptionSetOfPrimitivesTest {
 
 }
 
-class OptionSetOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks{
+class OptionSetOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
   // Set of Ints
   test("Pickle a case class with an optional list of ints") {
@@ -283,5 +283,5 @@ class OptionSetOfPrimitivesTest extends FunSuite with Assertions with GeneratorD
     convertToBytes(schema, record)
   }
 
-  
+
 }

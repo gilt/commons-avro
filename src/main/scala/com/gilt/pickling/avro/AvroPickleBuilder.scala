@@ -1,7 +1,7 @@
 package com.gilt.pickling.avro
 
 import scala.pickling._
-import scala.reflect.runtime.universe.{TypeRef, Type}
+import scala.reflect.runtime.universe.{TypeRef, Type, ClassSymbol}
 import scala.pickling.PicklingException
 import scala.collection.mutable
 
@@ -35,7 +35,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
         case (_, KEY_NONE) if parentIsACaseClass => buffer.encodeLongTo(0)
         case (tpe, _) if tpe <:< someType && parentIsACaseClass => buffer.encodeLongTo(1)
         case (tpe, _) if (tpe <:< iterableType || tpe <:< arrayType) && parentIsACaseClass =>
-        case (tpe@TypeRef(_, s, _), _) if s.asClass.isCaseClass && !(tpe <:< iterableType) =>
+        case (tpe@TypeRef(_, s:ClassSymbol, _), _) if s.isCaseClass && !(tpe <:< iterableType) =>
         case (_, KEY_UNIT) | (_, KEY_NULL) => throw new PicklingException("Not supported.")
         case (_, key) => throw new PicklingException(s"$key is not supported.")
       }
@@ -71,7 +71,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
 
   private def parentIsACaseClass: Boolean =
     tags.elems match {
-      case TypeRef(_, s, _) :: tail if s.asClass.isCaseClass => true
+      case TypeRef(_, s:ClassSymbol, _) :: tail if s.isCaseClass => true
       case _ => false
     }
 

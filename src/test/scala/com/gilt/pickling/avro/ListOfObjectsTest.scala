@@ -38,10 +38,11 @@ class ListOfObjectsTest extends FunSuite with Assertions {
     val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/ListOfObjects.avsc")
     val innerSchema = schema.getField("list").schema().getElementType
 
-    val list = obj.list.map{ inner =>
-      val innerRecord = new GenericData.Record(innerSchema)
-      innerRecord.put("id", inner.id)
-      innerRecord
+    val list = obj.list.map {
+      inner =>
+        val innerRecord = new GenericData.Record(innerSchema)
+        innerRecord.put("id", inner.id)
+        innerRecord
     }
 
     val record = new GenericData.Record(schema)
