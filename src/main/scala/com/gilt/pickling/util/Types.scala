@@ -1,8 +1,15 @@
 package com.gilt.pickling.util
 
 import scala.pickling.FastTypeTag
+import scala.reflect.runtime.universe.typeOf
+import scala.Some
 
 object Types {
+  val someType = typeOf[Some[Any]]
+  val iterableType = typeOf[Iterable[_]]
+  val arrayType = typeOf[Array[_]]
+  val optionType = typeOf[Option[_]]
+
   val KEY_NULL = FastTypeTag.Null.key
   val KEY_UNIT = FastTypeTag.Unit.key
 
@@ -29,7 +36,6 @@ object Types {
   val KEY_ARRAY_CHAR = FastTypeTag.ArrayChar.key
 
   val KEY_NIL = "scala.collection.immutable.Nil.type"
-  val KEY_SOME = "scala.Some["
   val KEY_NONE = "scala.None.type"
 
   val primitives = Set(KEY_NULL, KEY_BYTE, KEY_SHORT, KEY_CHAR, KEY_INT, KEY_LONG, KEY_BOOLEAN, KEY_FLOAT,

@@ -9,7 +9,6 @@ import TestUtils._
 import org.apache.avro.generic.GenericData
 import scala.pickling._
 import java.util.{List => JList}
-import scala.Some
 import com.gilt.pickling.avro.OptionArrayOfPrimitivesTest._
 import scala.collection.JavaConversions._
 import java.nio.ByteBuffer

@@ -10,8 +10,6 @@ import com.gilt.pickling.util.Tools._
 
 object AvroPickleReader {
   private val listType = typeOf[List[Any]]
-  private val someType = typeOf[Some[Any]]
-  private val optionType = typeOf[Option[Any]]
   private val instantiableList = typeOf[::[Any]]
   private val anySymbol = typeOf[Any].typeSymbol
 }
@@ -22,7 +20,6 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   import AvroPickleReader._
 
   //TODO List[Byte] should write avro bytes than array of byte
-
   //TODO be nice to used a thread local for a reuse BinaryEncoder
   private val decoder = DecoderFactory.get.directBinaryDecoder(new ByteArrayInputStream(arr), null)
   private var collectionGenericType: Option[FastTypeTag[_]] = None
@@ -102,25 +99,21 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       case _ => throw new PicklingException("LastTagRead field is null. Should not happen")
     }
 
-  private def determineCollectionGenericType(tag: FastTypeTag[_]): Option[FastTypeTag[_]] = {
-    val tpe = tag.tpe
-    //TODO only support arrays and list no maps yet
-    if (tpe <:< typeOf[Array[_]] || tpe <:< typeOf[Iterable[_]]) {
-      val t = determineGenericType(tpe)
-      Some(FastTypeTag(mirror, t, t.typeSymbol.fullName))
-    } else
-      throw new PicklingException("Collection is not supported")
-  }
+  private def determineCollectionGenericType(tag: FastTypeTag[_]): Option[FastTypeTag[_]] =
+    tag.tpe match {
+      //TODO only support arrays and list no maps yet
+      case t: TypeRef if t <:< arrayType || t <:< iterableType =>
+        val gt = determineGenericType(t)
+        Some(FastTypeTag(mirror, gt, gt.typeSymbol.fullName))
+      case _ => throw new PicklingException("Collection is not supported")
+    }
 
-  private def determineNextTag(tag: FastTypeTag[_]): Option[FastTypeTag[_]] = {
-    val tpe = tag.tpe
-    if (tpe <:< listType)
-      Some(buildFastTypeTagWithInstantiableList(tpe)) //handles the case that List does not have an empty constructor
-    else if (tpe <:< optionType)
-      Some(buildFastTypeTagFromOption(tpe))
-    else
-      Some(tag)
-  }
+  private def determineNextTag(tag: FastTypeTag[_]): Option[FastTypeTag[_]] =
+    tag.tpe match {
+      case t: TypeRef if t <:< listType => Some(buildFastTypeTagWithInstantiableList(t)) //handles the case that List does not have an empty constructor
+      case t: TypeRef if t <:< optionType => Some(buildFastTypeTagFromOption(t))
+      case _ => Some(tag)
+    }
 
   private def buildFastTypeTagFromOption(tpe: ru.Type): FastTypeTag[_] =
     decoder.readLong() match {

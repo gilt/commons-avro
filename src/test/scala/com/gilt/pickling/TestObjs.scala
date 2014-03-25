@@ -103,4 +103,7 @@ object TestObjs {
   case class SetOfObjects(list: Set[InnerObject])
   case class SelfReferencingObject(id: Int, inner:Option[SelfReferencingObject])
   case class MultipleSameObject(first: InnerObject, second: InnerObject)
+
+  object ObjInnerObject{ val id = 1}
+  class ClassInnerObject(id: Int)
 }

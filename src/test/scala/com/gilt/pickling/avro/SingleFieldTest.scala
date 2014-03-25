@@ -13,7 +13,7 @@ import com.gilt.pickling.TestObjs._
 object SingleFieldTest {
   implicit val arbSingleInt = Arbitrary(for (num <- Gen.choose(Int.MinValue, Int.MaxValue)) yield SingleInt(num))
   implicit val arbSingleLong = Arbitrary(for (num <- Gen.choose(Long.MinValue, Long.MaxValue)) yield SingleLong(num))
-  implicit val arbSingleDouble = Arbitrary(for (num <- Gen.choose(Double.MinValue/2, Double.MaxValue/2)) yield SingleDouble(num))
+  implicit val arbSingleDouble = Arbitrary(for (num <- Gen.choose(Double.MinValue / 2, Double.MaxValue / 2)) yield SingleDouble(num))
   implicit val arbSingleFloat = Arbitrary(for (num <- Gen.choose(Float.MinValue, Float.MaxValue)) yield SingleFloat(num))
   implicit val arbSingleBoolean = Arbitrary(for (num <- Gen.oneOf(true, false)) yield SingleBoolean(num))
   implicit val arbSingleString = Arbitrary(for (num <- Gen.alphaStr) yield SingleString(num))
@@ -74,9 +74,9 @@ class SingleFieldTest extends FunSuite with Assertions with GeneratorDrivenPrope
   test("Round trip a case class with a single long field") {
     forAll {
       (obj: SingleLong) =>
-      val pckl = obj.pickle
-      val hydratedObj: SingleLong = pckl.unpickle[SingleLong]
-      assert(hydratedObj === obj)
+        val pckl = obj.pickle
+        val hydratedObj: SingleLong = pckl.unpickle[SingleLong]
+        assert(hydratedObj === obj)
     }
   }
 

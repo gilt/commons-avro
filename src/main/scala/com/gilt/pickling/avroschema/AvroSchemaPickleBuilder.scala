@@ -24,10 +24,6 @@ object AvroSchemaPickleBuilder {
   private val arrayFieldStart = """{"type":"array","items":""".getBytes
   private val optionalFieldStart = """["null",""".getBytes
 
-  private val optionType = ru.typeOf[Option[_]]
-  private val arrayType = ru.typeOf[Array[_]]
-  private val iterableType = ru.typeOf[Iterable[_]]
-
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
   private val primitiveSymbolToBytes = Map(
@@ -48,6 +44,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   import AvroSchemaPickleBuilder._
   import com.gilt.pickling.util.Tools._
+  import com.gilt.pickling.util.Types._
 
   private var fieldCount = 0
   private val tags = new mutable.Stack[FastTypeTag[_]]()
@@ -98,8 +95,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case t: TypeRef if t <:< ru.typeOf[Array[Byte]] => arrayBytesField
       case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
       case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
-      case t: TypeRef if generatedObjectCache.contains(t.key) =>
-        s""""${t.key}"""".getBytes
+      case t: TypeRef if generatedObjectCache.contains(t.key) => s""""${t.key}"""".getBytes
       case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>
         generatedObjectCache += t.key
         recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(t) ++ endSquareBracket ++ endCurlyBracket
