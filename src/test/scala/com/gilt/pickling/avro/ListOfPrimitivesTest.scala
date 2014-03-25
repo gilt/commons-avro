@@ -46,13 +46,6 @@ class ListOfPrimitivesTest extends FunSuite with Assertions with GeneratorDriven
     }
   }
 
-  test("Unpickle a case class with an list of ints1") {
-    val obj = ListOfInts(List(1, 2, 3, 4))
-    val bytes = generateBytesFromAvro(obj.list, "/avro/lists/ListOfInts.avsc")
-    val hydratedObj: ListOfInts = bytes.unpickle[ListOfInts]
-    assert(obj.list === hydratedObj.list)
-  }
-
   test("Round trip a case class with an list of ints") {
     forAll {
       (obj: ListOfInts) =>

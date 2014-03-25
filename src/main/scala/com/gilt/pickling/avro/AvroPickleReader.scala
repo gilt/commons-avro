@@ -77,13 +77,11 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       this
   }
 
-  def readLength(): Int = {
-    //TODO there maybe an issue with large Collections need to write a test to determine if it is.
+  def readLength(): Int =
     collectionSize match {
       case Some(x) => x.toInt
       case _ => throw new PicklingException("Requested collection length before beginning of collection.")
     }
-  }
 
   def readElement(): PReader = {
     tags.push(collectionGenericType.get.tpe)
