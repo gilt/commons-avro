@@ -7,9 +7,12 @@ import scala.Some
 object Types {
   val someType = typeOf[Some[Any]]
   val iterableType = typeOf[Iterable[_]]
+  val setType = typeOf[Set[_]]
+  val seqType = typeOf[Seq[_]]
   val arrayType = typeOf[Array[_]]
   val listType = typeOf[List[Any]]
   val optionType = typeOf[Option[_]]
+  val mapType = typeOf[Map[String,_]]
 
   val KEY_NULL = FastTypeTag.Null.key
   val KEY_UNIT = FastTypeTag.Unit.key

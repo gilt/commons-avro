@@ -45,6 +45,16 @@ object TestObjs {
   case class SetOfShorts(list: Set[Short])
   case class SetOfChars(list: Set[Char])
 
+  case class MapOfInts(list: Map[String, Int])
+  case class MapOfLongs(list: Map[String, Long])
+  case class MapOfDoubles(list: Map[String, Double])
+  case class MapOfFloats(list: Map[String, Float])
+  case class MapOfBooleans(list: Map[String, Boolean])
+  case class MapOfStrings(list: Map[String, String])
+  case class MapOfBytes(list: Map[String, Byte])
+  case class MapOfShorts(list: Map[String, Short])
+  case class MapOfChars(list: Map[String, Char])
+
   case class MultipleField(intField: Int,
                            longField: Long,
                            doubleField: Double,

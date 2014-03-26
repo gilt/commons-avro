@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "MapOfLongs",
+ "fields": [
+     {"name": "list", "type": {"type": "map", "values": "long"}}
+ ]
+}
