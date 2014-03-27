@@ -12,6 +12,7 @@ import MapOfPrimitivesTest._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import com.gilt.pickling.TestObjs._
 import org.scalacheck.{Arbitrary, Gen}
+import scala.util.Random
 
 object MapOfPrimitivesTest {
   def listToMap[T](list: List[T]): Map[String, T] = list.map(x => (x.toString, x)).toMap
@@ -23,7 +24,7 @@ object MapOfPrimitivesTest {
   implicit val arbMapOfStrings = Arbitrary(for (list <- Gen.containerOf[List, String](Gen.alphaStr)) yield MapOfStrings(listToMap[String](list)))
   implicit val arbMapOfBytes = Arbitrary(for (list <- Gen.containerOf[List, Byte](Gen.choose(Byte.MinValue, Byte.MaxValue))) yield MapOfBytes(listToMap[Byte](list)))
   implicit val arbMapOfShorts = Arbitrary(for (list <- Gen.containerOf[List, Short](Gen.choose(Short.MinValue, Short.MaxValue))) yield MapOfShorts(listToMap[Short](list)))
-  implicit val arbMapOfChars = Arbitrary(for (list <- Gen.containerOf[List, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield MapOfChars(listToMap[Char](list)))
+  implicit val arbMapOfChars = Arbitrary(for (list <- Gen.containerOf[List, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield MapOfChars(list.map(x => (s"${Random.nextLong()}", x)).toMap))
 }
 
 class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
@@ -256,7 +257,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of chars") {
+  test("Unpickle a case class with an list of chars") {
     forAll {
       (obj: MapOfChars) =>
         val bytes = generateBytesFromAvro(obj.list.mapValues(_.toInt), "/avro/maps/MapOfChars.avsc")
@@ -265,7 +266,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of chars") {
+  test("Round trip a case class with an list of chars") {
     forAll {
       (obj: MapOfChars) =>
         val pckl = obj.pickle
