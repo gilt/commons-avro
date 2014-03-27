@@ -109,14 +109,11 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def supportMapType(t: TypeRef, keyType: Type): Boolean =  t <:< mapType && keyType <:< stringType
 
-  private def covertObjectFieldsToSchema(t: TypeRef): Array[Byte] =
-    t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
+  private def covertObjectFieldsToSchema(t: TypeRef): Array[Byte] = t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 
-  private def objectFieldToSchema(sym: Symbol): Array[Byte] =
-    fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
+  private def objectFieldToSchema(sym: Symbol): Array[Byte] = fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
 
-  private def recordSchemaPreamable(typeSymbol: Symbol): Array[Byte] =
-    namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
+  private def recordSchemaPreamable(typeSymbol: Symbol): Array[Byte] = namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
 
   private def extractFieldType(name: String, tag: FastTypeTag[_]): Type =
     tag.tpe.members.filter(!_.isMethod).find(_.name.decoded.trim == name) match {

@@ -14,15 +14,6 @@ object AssortedCollectionTests {
   implicit val arbSc = Arbitrary {
     for (ints <- Gen.containerOf[Seq, Int](Gen.choose(Int.MinValue, Int.MaxValue))) yield SeqContainer(ints)
   }
-
-  implicit val arbMc = Arbitrary {
-    for {
-      keys <- Gen.containerOf[Vector, Int](Gen.choose(Int.MinValue, Int.MaxValue))
-      values <- Gen.containerOf[Vector, Int](Gen.choose(Int.MinValue, Int.MaxValue))
-    } yield {
-      MapContainer(keys.zip(values).toMap)
-    }
-  }
 }
 
 class AssortedCollectionTests extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
@@ -43,13 +34,4 @@ class AssortedCollectionTests extends FunSuite with Assertions with GeneratorDri
         assert(obj === obj.pickle.unpickle[SeqContainer])
     }
   }
-
-  ignore("map roundtrip") {
-    // doesn't work yet because we don't know how to deal with collections of 2 types
-    forAll {
-      (obj: MapContainer) =>
-        if (!obj.value.isEmpty) assert(obj === obj.pickle.unpickle[MapContainer])
-    }
-  }
-
 }

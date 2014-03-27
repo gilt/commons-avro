@@ -105,6 +105,16 @@ object TestObjs {
   case class OptionSetOfShorts(list: Option[Set[Short]])
   case class OptionSetOfChars(list: Option[Set[Char]])
 
+  case class OptionMapOfInts(list: Option[Map[String, Int]])
+  case class OptionMapOfLongs(list: Option[Map[String, Long]])
+  case class OptionMapOfDoubles(list: Option[Map[String, Double]])
+  case class OptionMapOfFloats(list: Option[Map[String, Float]])
+  case class OptionMapOfBooleans(list: Option[Map[String, Boolean]])
+  case class OptionMapOfStrings(list: Option[Map[String, String]])
+  case class OptionMapOfBytes(list: Option[Map[String, Byte]])
+  case class OptionMapOfShorts(list: Option[Map[String, Short]])
+  case class OptionMapOfChars(list: Option[Map[String, Char]])
+
   case class InnerObject(id: Int)
   case class SingleObject(inner:InnerObject)
   case class SingleOptionObject(inner: Option[InnerObject])

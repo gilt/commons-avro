@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "OptionMapOfStrings",
+ "fields": [
+     {"name": "list", "type": ["null", {"type": "map", "values": "string"}]}
+ ]
+}
