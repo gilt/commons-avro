@@ -56,7 +56,6 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
     this
   }
 
-
   @inline def putElement(pickler: PBuilder => Unit): PBuilder = {
     buffer.encoder.startItem()
     pickler(this)

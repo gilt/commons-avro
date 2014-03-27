@@ -81,35 +81,35 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def processObject(tag: FastTypeTag[_]) =
     tag.tpe match {
-      case t@TypeRef(_, s: ClassSymbol, _) if s.isCaseClass && !(t <:< listType) =>
+      case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< listType) =>
         tags.push(tag)
-        generatedObjectCache += t.key
-        buffer.put(recordSchemaPreamable(s))
+        generatedObjectCache += tpe.key
+        buffer.put(recordSchemaPreamable(sym))
       case _ => throw new PicklingException("Only case classes are supported as root objects")
     }
 
 
-  private def typeToBytes(tpe: Type): Array[Byte] =
-    tpe match {
-      case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key) // Primitive Field
-      case t: TypeRef if t <:< typeOf[Array[Byte]] => arrayBytesField //Bytes Array Field
-      case t@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(t, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Map Field
-      case t@TypeRef(_, _, genericType :: Nil) if supportedIterationType(t) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Iteration Field
-      case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket //Option Field
-      case t: TypeRef if generatedObjectCache.contains(t.key) => s""""${t.key}"""".getBytes //Cached case class record
-      case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass => // case class field
-        generatedObjectCache += t.key
-        recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(t) ++ endSquareBracket ++ endCurlyBracket
-      case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
+  private def typeToBytes(inputTpe: Type): Array[Byte] =
+    inputTpe match {
+      case tpe: TypeRef if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key) // Primitive Field
+      case tpe: TypeRef if tpe <:< typeOf[Array[Byte]] => arrayBytesField //Bytes Array Field
+      case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Map Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Iteration Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket //Option Field
+      case tpe: TypeRef if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes //Cached case class record
+      case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass => // case class field
+        generatedObjectCache += tpe.key
+        recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
+      case tpe: TypeRef if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
 
 
-  private def supportedIterationType(t: TypeRef): Boolean =  t <:< arrayType || t <:< setType || t <:< seqType
+  private def supportedIterationType(tpe: TypeRef): Boolean =  tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
 
-  private def supportMapType(t: TypeRef, keyType: Type): Boolean =  t <:< mapType && keyType <:< stringType
+  private def supportMapType(tpe: TypeRef, keyType: Type): Boolean =  tpe <:< mapType && keyType <:< stringType
 
-  private def covertObjectFieldsToSchema(t: TypeRef): Array[Byte] = t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
+  private def covertObjectFieldsToSchema(tpe: TypeRef): Array[Byte] = tpe.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 
   private def objectFieldToSchema(sym: Symbol): Array[Byte] = fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
 
