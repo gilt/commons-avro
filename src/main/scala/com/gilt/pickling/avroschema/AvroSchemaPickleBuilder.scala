@@ -91,8 +91,8 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def typeToBytes(tpe: Type): Array[Byte] =
     tpe match {
-      case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
-      case t: TypeRef if t <:< typeOf[Array[Byte]] => arrayBytesField
+      case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key) // Primitive Field
+      case t: TypeRef if t <:< typeOf[Array[Byte]] => arrayBytesField //Bytes Array Field
       case t@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(t, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Map Field
       case t@TypeRef(_, _, genericType :: Nil) if supportedIterationType(t) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Iteration Field
       case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket //Option Field

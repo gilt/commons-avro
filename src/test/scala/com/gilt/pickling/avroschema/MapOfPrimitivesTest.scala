@@ -7,6 +7,13 @@ import com.gilt.pickling.TestUtils._
 
 class MapOfPrimitivesTest extends FunSuite with Assertions {
 
+  //Negative
+  test("Pickle a case class with a map other than Map[String, _] fails") {
+    intercept[PicklingException] {
+      MapOfIntInts(Map(1 -> 2)).pickle
+    }
+  }
+
   test("Generate schema from a case class with a map of int field") {
     assert(fingerPrint("/avro/maps/MapOfInts.avsc") === fingerPrint(MapOfInts(Map("key" -> 123)).pickle.value))
   }

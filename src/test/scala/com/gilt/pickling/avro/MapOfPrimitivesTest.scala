@@ -28,6 +28,13 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
 
   import MapOfPrimitivesTest._
 
+  //Negative
+  test("Pickle a case class with a map other than Map[String, _] fails") {
+    intercept[PicklingException] {
+      MapOfIntInts(Map(1 -> 2)).pickle
+    }
+  }
+
   // Array of Ints
   test("Pickle a case class with an map of ints") {
     forAll {

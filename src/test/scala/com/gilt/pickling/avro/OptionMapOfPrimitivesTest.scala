@@ -28,6 +28,13 @@ object OptionMapOfPrimitivesTest {
 class OptionMapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
   import OptionMapOfPrimitivesTest._
 
+  //Negative
+  test("Pickle a case class with a map other than Map[String, _] fails") {
+    intercept[PicklingException] {
+      OptionMapOfIntInts(Some(Map(1 -> 2))).pickle
+    }
+  }
+
   // Array of Ints
   test("Pickle a case class with an optional map of ints") {
     forAll {

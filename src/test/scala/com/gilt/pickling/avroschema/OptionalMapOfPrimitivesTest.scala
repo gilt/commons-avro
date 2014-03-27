@@ -9,7 +9,7 @@ class OptionalMapOfPrimitivesTest extends FunSuite with Assertions {
   //negative 
   test("Generate schema from a case class only support a string type key") {
     intercept[PicklingException] {
-      MapOfIntInts(Some(Map(12 -> 123))).pickle.value
+      OptionMapOfIntInts(Some(Map(12 -> 123))).pickle.value
     }
   }
 
