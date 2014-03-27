@@ -11,7 +11,6 @@ import scala.collection.mutable
 object AvroPickleReader {
   private val instantiableList = typeOf[::[Any]]
   private val anySymbol = typeOf[Any].typeSymbol
-  private val stringType = typeOf[String]
 }
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {

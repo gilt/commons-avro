@@ -21,6 +21,7 @@ object AvroSchemaPickleBuilder {
 
   private val arrayBytesField = """"bytes"""".getBytes
   private val arrayFieldStart = """{"type":"array","items":""".getBytes
+  private val mapFieldStart = """{"type":"map","values":""".getBytes
   private val optionalFieldStart = """["null",""".getBytes
 
   private val intField = """"int"""".getBytes
@@ -92,7 +93,8 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
     tpe match {
       case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
       case t: TypeRef if t <:< typeOf[Array[Byte]] => arrayBytesField
-      case t@TypeRef(_, _, genericType :: Nil) if t <:< arrayType || t <:< iterableType => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
+      case t@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(t, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
+      case t@TypeRef(_, _, genericType :: Nil) if supportedIterationType(t) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
       case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
       case t: TypeRef if generatedObjectCache.contains(t.key) => s""""${t.key}"""".getBytes
       case t@TypeRef(_, s: ClassSymbol, _) if s.isCaseClass =>
@@ -101,6 +103,11 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
+
+
+  private def supportedIterationType(t: TypeRef): Boolean =  t <:< arrayType || t <:< setType || t <:< seqType
+
+  private def supportMapType(t: TypeRef, keyType: Type): Boolean =  t <:< mapType && keyType <:< stringType
 
   private def covertObjectFieldsToSchema(t: TypeRef): Array[Byte] =
     t.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)

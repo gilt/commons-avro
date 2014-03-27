@@ -13,6 +13,7 @@ object Types {
   val listType = typeOf[List[Any]]
   val optionType = typeOf[Option[_]]
   val mapType = typeOf[Map[String,_]]
+  val stringType = typeOf[String]
 
   val KEY_NULL = FastTypeTag.Null.key
   val KEY_UNIT = FastTypeTag.Unit.key
