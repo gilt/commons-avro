@@ -11,6 +11,7 @@ import scala.collection.mutable
 object AvroPickleReader {
   private val instantiableList = typeOf[::[Any]]
   private val anySymbol = typeOf[Any].typeSymbol
+  private val stringType = typeOf[String]
 }
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
@@ -18,6 +19,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   import com.gilt.pickling.util.Types._
   import AvroPickleReader._
 
+  //TODO Arrays and Maps are read in Blocks
   //TODO List[Byte] should write avro bytes than array of byte
   //TODO be nice to used a thread local for a reuse BinaryEncoder
   private val decoder = DecoderFactory.get.directBinaryDecoder(new ByteArrayInputStream(arr), null)
@@ -72,8 +74,15 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   def beginCollection(): PReader = withHints {
     hints =>
-      collectionSize = Some(decoder.readArrayStart())
-      collectionGenericType = determineCollectionGenericType(lastTagRead)
+      lastTagRead.tpe match {
+        case t: TypeRef if t <:< arrayType || t <:< iterableType =>
+          collectionSize = Some(decoder.readArrayStart())
+          collectionGenericType = determineGenericTypeConvertToTag(t)
+        case t: TypeRef if t <:< mapType =>
+          collectionSize = Some(decoder.readMapStart())
+          collectionGenericType = determineGenericTypeConvertToTag(t)
+        case _ => throw new PicklingException("Collection is not supported")
+      }
       this
   }
 
@@ -99,15 +108,6 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     lastTagReadOption match {
       case Some(x) => x
       case _ => throw new PicklingException("LastTagRead field is null. Should not happen")
-    }
-
-  private def determineCollectionGenericType(tag: FastTypeTag[_]): Option[FastTypeTag[_]] =
-    tag.tpe match {
-      //TODO only support arrays and list no maps yet
-      case t: TypeRef if t <:< arrayType || t <:< iterableType =>
-        val gt = determineGenericType(t)
-        Some(FastTypeTag(mirror, gt, gt.typeSymbol.fullName))
-      case _ => throw new PicklingException("Collection is not supported")
     }
 
   private def determineNextTag(tag: FastTypeTag[_]): FastTypeTag[_] =
@@ -150,11 +150,15 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     items.toArray
   }
 
+  private def determineGenericTypeConvertToTag(t:TypeRef): Some[FastTypeTag[_]] = {
+    val gt = determineGenericType(t)
+    Some(FastTypeTag(mirror, gt, gt.typeSymbol.fullName))
+  }
+
   private def determineGenericType(tpe: Type): Type =
     tpe match {
-      // this only supports collections with a single type, so, not Map for example,
-      // which returns a list of length 2 in the third position.
       case TypeRef(_, _, genericType :: Nil) => genericType
+      case TypeRef(_, _, keyType :: genericType :: Nil) if keyType <:< stringType => genericType // only Map[String, _] supported by avro
       case _ => throw new PicklingException(s"Cannot determine generic type of collection ($tpe)")
     }
 

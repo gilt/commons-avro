@@ -24,7 +24,6 @@ object MapOfPrimitivesTest {
   implicit val arbMapOfBytes = Arbitrary(for (list <- Gen.containerOf[List, Byte](Gen.choose(Byte.MinValue, Byte.MaxValue))) yield MapOfBytes(listToMap[Byte](list)))
   implicit val arbMapOfShorts = Arbitrary(for (list <- Gen.containerOf[List, Short](Gen.choose(Short.MinValue, Short.MaxValue))) yield MapOfShorts(listToMap[Short](list)))
   implicit val arbMapOfChars = Arbitrary(for (list <- Gen.containerOf[List, Char](Gen.choose(Char.MinValue, Char.MaxValue))) yield MapOfChars(listToMap[Char](list)))
-
 }
 
 class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
@@ -39,7 +38,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of ints") {
+  test("Unpickle a case class with an list of ints") {
     forAll {
       (obj: MapOfInts) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/maps/MapOfInts.avsc")
@@ -48,7 +47,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of ints") {
+  test("Round trip a case class with an list of ints") {
     forAll {
       (obj: MapOfInts) =>
         val pckl = obj.pickle
@@ -66,7 +65,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of longs") {
+  test("Unpickle a case class with an list of longs") {
     forAll {
       (obj: MapOfLongs) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/maps/MapOfLongs.avsc")
@@ -75,7 +74,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of longs") {
+  test("Round trip a case class with an list of longs") {
     forAll {
       (obj: MapOfLongs) =>
         val pckl = obj.pickle
@@ -93,7 +92,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of doubles") {
+  test("Unpickle a case class with an list of doubles") {
     forAll {
       (obj: MapOfDoubles) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/maps/MapOfDoubles.avsc")
@@ -102,7 +101,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of doubles") {
+  test("Round trip a case class with an list of doubles") {
     forAll {
       (obj: MapOfDoubles) =>
         val pckl = obj.pickle
@@ -120,7 +119,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of floats") {
+  test("Unpickle a case class with an list of floats") {
     forAll {
       (obj: MapOfFloats) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/maps/MapOfFloats.avsc")
@@ -129,7 +128,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of floats") {
+  test("Round trip a case class with an list of floats") {
     forAll {
       (obj: MapOfFloats) =>
         val pckl = obj.pickle
@@ -147,7 +146,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of boolean") {
+  test("Unpickle a case class with an list of boolean") {
     forAll {
       (obj: MapOfBooleans) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/maps/MapOfBooleans.avsc")
@@ -156,7 +155,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of boolean") {
+  test("Round trip a case class with an list of boolean") {
     forAll {
       (obj: MapOfBooleans) =>
         val pckl = obj.pickle
@@ -174,7 +173,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of string") {
+  test("Unpickle a case class with an list of string") {
     forAll {
       (obj: MapOfStrings) =>
         val bytes = generateBytesFromAvro(obj.list, "/avro/maps/MapOfStrings.avsc")
@@ -183,7 +182,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of string") {
+  test("Round trip a case class with an list of string") {
     forAll {
       (obj: MapOfStrings) =>
         val pckl = obj.pickle
@@ -203,7 +202,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of bytes") {
+  test("Unpickle a case class with an list of bytes") {
     forAll {
       (obj: MapOfBytes) =>
         val bytes = generateBytesFromAvro(obj.list.mapValues(_.toInt), "/avro/maps/MapOfBytes.avsc")
@@ -212,7 +211,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of bytes") {
+  test("Round trip a case class with an list of bytes") {
     forAll {
       (obj: MapOfBytes) =>
         val pckl = obj.pickle
@@ -230,7 +229,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Unpickle a case class with an list of shorts") {
+  test("Unpickle a case class with an list of shorts") {
     forAll {
       (obj: MapOfShorts) =>
         val bytes = generateBytesFromAvro(obj.list.mapValues(_.toInt), "/avro/maps/MapOfShorts.avsc")
@@ -239,7 +238,7 @@ class MapOfPrimitivesTest extends FunSuite with Assertions with GeneratorDrivenP
     }
   }
 
-  ignore("Round trip a case class with an list of shorts") {
+  test("Round trip a case class with an list of shorts") {
     forAll {
       (obj: MapOfShorts) =>
         val pckl = obj.pickle

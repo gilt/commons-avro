@@ -34,7 +34,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
         case (_, KEY_NIL) if parentIsACaseClass => buffer.encodeByteArrayTo(Array.empty)
         case (_, KEY_NONE) if parentIsACaseClass => buffer.encodeLongTo(0)
         case (tpe, _) if tpe <:< someType && parentIsACaseClass => buffer.encodeLongTo(1)
-        case (tpe, _) if (tpe <:< mapType || tpe <:< setType || tpe <:< seqType || tpe <:< arrayType) && parentIsACaseClass =>
+        case (tpe, _) if isSupportedCollectionType(tpe) && parentIsACaseClass =>
         case (tpe@TypeRef(_, s: ClassSymbol, _), _) if s.isCaseClass && !(tpe <:< iterableType) =>
         case (_, KEY_UNIT) | (_, KEY_NULL) => throw new PicklingException("Not supported.")
         case (_, key) => throw new PicklingException(s"$key is not supported.")
@@ -70,6 +70,8 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
     }
 
   @inline def result() = AvroPickle(buffer.result())
+
+  private def isSupportedCollectionType(tpe: Type): Boolean = tpe <:< mapType || tpe <:< setType || tpe <:< seqType || tpe <:< arrayType
 
   private def isNotRootObject: Boolean = tags.length > 0
 
