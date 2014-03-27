@@ -105,6 +105,7 @@ object TestObjs {
   case class OptionSetOfShorts(list: Option[Set[Short]])
   case class OptionSetOfChars(list: Option[Set[Char]])
 
+  case class MapOfIntInts(list: Option[Map[Int, Int]])
   case class OptionMapOfInts(list: Option[Map[String, Int]])
   case class OptionMapOfLongs(list: Option[Map[String, Long]])
   case class OptionMapOfDoubles(list: Option[Map[String, Double]])

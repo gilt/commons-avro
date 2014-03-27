@@ -93,11 +93,11 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
     tpe match {
       case t: TypeRef if primitiveSymbolToBytes.contains(t.key) => primitiveSymbolToBytes(t.key)
       case t: TypeRef if t <:< typeOf[Array[Byte]] => arrayBytesField
-      case t@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(t, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
-      case t@TypeRef(_, _, genericType :: Nil) if supportedIterationType(t) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket
-      case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket
-      case t: TypeRef if generatedObjectCache.contains(t.key) => s""""${t.key}"""".getBytes
-      case t@TypeRef(_, s: ClassSymbol, _) if s.isCaseClass =>
+      case t@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(t, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Map Field
+      case t@TypeRef(_, _, genericType :: Nil) if supportedIterationType(t) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Iteration Field
+      case t@TypeRef(_, _, genericType :: Nil) if t <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket //Option Field
+      case t: TypeRef if generatedObjectCache.contains(t.key) => s""""${t.key}"""".getBytes //Cached case class record
+      case t@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass => // case class field
         generatedObjectCache += t.key
         recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(t) ++ endSquareBracket ++ endCurlyBracket
       case t: TypeRef if t.key == KEY_UNIT || t.key == KEY_NULL => throw new PicklingException("Not supported.")
