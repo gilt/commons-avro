@@ -38,4 +38,8 @@ class ObjectTest extends FunSuite with Assertions{
   test("Generate schema from a self referencing case") {
     assert(fingerPrint("/avro/object/SelfReferencingObject.avsc") === fingerPrint(SelfReferencingObject(1, Some(SelfReferencingObject(2, None))).pickle.value))
   }
+
+  test("Generate schema from a case class with a map of inner case class") {
+    assert(fingerPrint("/avro/object/MapOfObjects.avsc") === fingerPrint(MapOfObjects(Map("a" -> new InnerObject(2))).pickle.value))
+  }
 }
