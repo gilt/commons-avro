@@ -124,6 +124,7 @@ object TestObjs {
   case class ListOfObjects(list: List[InnerObject])
   case class ArrayOfObjects(list: Array[InnerObject])
   case class SetOfObjects(list: Set[InnerObject])
+  case class MapOfObjects(list: Map[String, InnerObject])
   case class SelfReferencingObject(id: Int, inner:Option[SelfReferencingObject])
   case class MultipleSameObject(first: InnerObject, second: InnerObject)
 

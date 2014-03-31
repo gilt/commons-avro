@@ -1,0 +1,24 @@
+{
+   "namespace":"com.gilt.pickling.TestObjs",
+   "type":"record",
+   "name":"MapOfObjects",
+   "fields":[
+      {
+         "name":"list",
+         "type":{
+            "type":"map",
+            "values":{
+               "type":"record",
+               "name":"InnerObject",
+               "namespace":"com.gilt.pickling.TestObjs",
+               "fields":[
+                  {
+                     "name":"id",
+                     "type":"int"
+                  }
+               ]
+            }
+         }
+      }
+   ]
+}
