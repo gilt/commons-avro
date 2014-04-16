@@ -52,7 +52,9 @@ class AvroEncodingOutput extends Output[Array[Byte]] {
 
   def encodeStringArrayTo(value: Array[String]): Unit = writePrimitiveArray(value, (s: String) => encoder.writeString(s))
 
-  def encodeByteArrayTo(value: Array[Byte]): Unit = encoder.writeBytes(value, 0, value.length)
+  def encodeByteArrayTo(value: Array[Byte]): Unit = encoder.writeBytes(value)
+
+  def encodeFixedByteArrayTo(value: Array[Byte]): Unit = encoder.writeFixed(value)
 
   def encodeCharArrayTo(value: Array[Char]): Unit = writePrimitiveArray(value, (c: Char) => encoder.writeInt(c.toInt))
 

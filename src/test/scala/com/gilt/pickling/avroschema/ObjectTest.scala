@@ -4,6 +4,7 @@ import com.gilt.pickling.TestObjs._
 import scala.pickling._
 import com.gilt.pickling.TestUtils._
 import org.scalatest.{Assertions, FunSuite}
+import java.util.UUID
 
 class ObjectTest extends FunSuite with Assertions{
 
@@ -41,5 +42,13 @@ class ObjectTest extends FunSuite with Assertions{
 
   test("Generate schema from a case class with a map of inner case class") {
     assert(fingerPrint("/avro/object/MapOfObjects.avsc") === fingerPrint(MapOfObjects(Map("a" -> new InnerObject(2))).pickle.value))
+  }
+
+  test("Generate schema from a case class with a UUID") {
+    assert(fingerPrint("/avro/object/SingleUuid.avsc") === fingerPrint(SingleUuid(UUID.randomUUID()).pickle.value))
+  }
+
+  test("Generate schema from a case class with an option UUID") {
+    assert(fingerPrint("/avro/object/SingleOptionUuid.avsc") === fingerPrint(SingleOptionUuid(Some(UUID.randomUUID())).pickle.value))
   }
 }

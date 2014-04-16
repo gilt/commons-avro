@@ -3,6 +3,7 @@ package com.gilt.pickling.util
 import scala.pickling.FastTypeTag
 import scala.reflect.runtime.universe.typeOf
 import scala.Some
+import java.util.UUID
 
 object Types {
   val someType = typeOf[Some[Any]]
@@ -14,6 +15,11 @@ object Types {
   val optionType = typeOf[Option[_]]
   val mapType = typeOf[Map[String,_]]
   val stringType = typeOf[String]
+  val byteArrayType = typeOf[Array[Byte]]
+
+  val TAG_UUID = implicitly[FastTypeTag[UUID]]
+  val KEY_UUID = TAG_UUID.key
+  val uuidType = TAG_UUID.tpe
 
   val KEY_NULL = FastTypeTag.Null.key
   val KEY_UNIT = FastTypeTag.Unit.key

@@ -1,5 +1,7 @@
 package com.gilt.pickling
 
+import java.util.UUID
+
 object TestObjs {
   case class VectorContainer(value: Vector[Int])
   case class MapContainer(value: Map[Int, Int])
@@ -127,6 +129,8 @@ object TestObjs {
   case class MapOfObjects(list: Map[String, InnerObject])
   case class SelfReferencingObject(id: Int, inner:Option[SelfReferencingObject])
   case class MultipleSameObject(first: InnerObject, second: InnerObject)
+  case class SingleUuid(uuid: UUID)
+  case class SingleOptionUuid(uuid: Option[UUID])
 
   object ObjInnerObject{ val id = 1}
   class ClassInnerObject(id: Int)

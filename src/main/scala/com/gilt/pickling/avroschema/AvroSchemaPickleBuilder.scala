@@ -6,6 +6,7 @@ import scala.collection.mutable
 import com.gilt.pickling.util.Types._
 import scala.pickling.PicklingException
 import scala.Some
+import java.util.UUID
 
 object AvroSchemaPickleBuilder {
   private val namespace = """{"namespace":"""".getBytes
@@ -23,6 +24,7 @@ object AvroSchemaPickleBuilder {
   private val arrayFieldStart = """{"type":"array","items":""".getBytes
   private val mapFieldStart = """{"type":"map","values":""".getBytes
   private val optionalFieldStart = """["null",""".getBytes
+  private val uuidField = """{"type": "fixed", "size": 16, "name": "uuid"}""".getBytes
 
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
@@ -91,13 +93,14 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def typeToBytes(inputTpe: Type): Array[Byte] =
     inputTpe match {
-      case tpe: TypeRef if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key) // Primitive Field
-      case tpe: TypeRef if tpe <:< typeOf[Array[Byte]] => arrayBytesField //Bytes Array Field
-      case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Map Field
-      case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket //Iteration Field
-      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket //Option Field
-      case tpe: TypeRef if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes //Cached case class record
-      case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass => // case class field
+      case tpe: TypeRef if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key)                                                      // Primitive Field
+      case tpe: TypeRef if tpe <:< typeOf[Array[Byte]] => arrayBytesField                                                                                   // Bytes Array Field
+      case tpe: TypeRef if tpe <:< typeOf[UUID] => uuidField                                                                                                // UUID Field
+      case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Map Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket           // Iteration Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket                // Option Field
+      case tpe: TypeRef if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes                                                           // Cached case class record
+      case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>                                                                                    // case class field
         generatedObjectCache += tpe.key
         recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
       case tpe: TypeRef if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
@@ -105,9 +108,9 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
     }
 
 
-  private def supportedIterationType(tpe: TypeRef): Boolean =  tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
+  private def supportedIterationType(tpe: TypeRef): Boolean = tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
 
-  private def supportMapType(tpe: TypeRef, keyType: Type): Boolean =  tpe <:< mapType && keyType <:< stringType
+  private def supportMapType(tpe: TypeRef, keyType: Type): Boolean = tpe <:< mapType && keyType <:< stringType
 
   private def covertObjectFieldsToSchema(tpe: TypeRef): Array[Byte] = tpe.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 

@@ -1,0 +1,7 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "SingleOptionUuid",
+ "fields": [
+     {"name": "uuid", "type": ["null",{"type": "fixed", "size": 16, "name": "uuid"}]}
+ ]
+}

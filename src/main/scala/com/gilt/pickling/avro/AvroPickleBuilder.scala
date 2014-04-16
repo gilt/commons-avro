@@ -31,6 +31,8 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
         case (_, KEY_ARRAY_BYTE) if parentIsACaseClass => buffer.encodeByteArrayTo(picklee.asInstanceOf[Array[Byte]])
         case (_, KEY_ARRAY_SHORT) if parentIsACaseClass => buffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
         case (_, KEY_ARRAY_CHAR) if parentIsACaseClass => buffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
+        case (_, KEY_UUID) if parentIsACaseClass => //Nothing to do. Wait for bytes field.
+        case (_, KEY_ARRAY_BYTE) if tags.head <:< uuidType => buffer.encodeFixedByteArrayTo(picklee.asInstanceOf[Array[Byte]])
         case (_, KEY_NIL) if parentIsACaseClass => buffer.encodeByteArrayTo(Array.empty)
         case (_, KEY_NONE) if parentIsACaseClass => buffer.encodeLongTo(0)
         case (tpe, _) if tpe <:< someType && parentIsACaseClass => buffer.encodeLongTo(1)
@@ -76,7 +78,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
 
   private def writeStartOfCollection() =
     tags.top match {
-      case t: TypeRef if t <:< mapType =>  buffer.encoder.writeMapStart()
+      case t: TypeRef if t <:< mapType => buffer.encoder.writeMapStart()
       case _ => buffer.encoder.writeArrayStart()
     }
 
