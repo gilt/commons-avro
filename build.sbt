@@ -4,6 +4,9 @@ name := "commons-avro"
 
 scalaVersion := "2.10.3"
 
+// annoying issue with pickling in sonatype's repo
+checksums in update := Nil
+
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.7.6",
   // Remove when scala-pickling fix issue https://github.com/scala/pickling/issues/119 and https://github.com/scala/pickling/issues/120
