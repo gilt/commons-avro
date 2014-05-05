@@ -4,6 +4,7 @@ import com.gilt.pickling.TestObjs._
 import scala.pickling._
 import com.gilt.pickling.TestUtils._
 import org.scalatest.{Assertions, FunSuite}
+import java.util.UUID
 
 class FingerprintObjectTest extends FunSuite with Assertions{
 
@@ -42,5 +43,18 @@ class FingerprintObjectTest extends FunSuite with Assertions{
   test("Fingerprint for a case class with a map of inner case class") {
     assert(Fingerprint(MapOfObjects(Map("a" -> new InnerObject(2)))) === fingerPrint(MapOfObjects(Map("a" -> new InnerObject(2))).pickle.value))
   }
+
+  test("Fingerprint from a case class with a UUID") {
+    assert(Fingerprint(SingleUuid(UUID.randomUUID())) === fingerPrint(SingleUuid(UUID.randomUUID()).pickle.value))
+  }
+
+  test("Fingerprint from a case class with a multiple UUID") {
+    assert(Fingerprint(MultipleUuid(UUID.randomUUID(), UUID.randomUUID())) === fingerPrint(MultipleUuid(UUID.randomUUID(), UUID.randomUUID()).pickle.value))
+  }
+
+  test("Fingerprint from a case class with an option UUID") {
+    assert(Fingerprint(SingleOptionUuid(Some(UUID.randomUUID()))) === fingerPrint(SingleOptionUuid(Some(UUID.randomUUID())).pickle.value))
+  }
+
 
 }

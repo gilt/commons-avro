@@ -24,7 +24,9 @@ object AvroSchemaPickleBuilder {
   private val arrayFieldStart = """{"type":"array","items":""".getBytes
   private val mapFieldStart = """{"type":"map","values":""".getBytes
   private val optionalFieldStart = """["null",""".getBytes
-  private val uuidField = """{"type": "fixed", "size": 16, "name": "uuid"}""".getBytes
+  private val uuidKey = "java.util.UUID"
+  private val cachedUuidField = """"java.util.UUID"""".getBytes
+  private val uuidField = """{"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}""".getBytes
 
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
@@ -86,7 +88,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< listType) =>
         tags.push(tag)
         generatedObjectCache += tpe.key
-        buffer.put(recordSchemaPreamable(sym))
+        buffer.put(recordSchemaPreamble(sym))
       case _ => throw new PicklingException("Only case classes are supported as root objects")
     }
 
@@ -95,14 +97,17 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
     inputTpe match {
       case tpe: TypeRef if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key)                                                      // Primitive Field
       case tpe: TypeRef if tpe <:< typeOf[Array[Byte]] => arrayBytesField                                                                                   // Bytes Array Field
-      case tpe: TypeRef if tpe <:< typeOf[UUID] => uuidField                                                                                                // UUID Field
+      case tpe: TypeRef if tpe <:< typeOf[UUID] && generatedObjectCache.contains(uuidKey) => cachedUuidField                                                // Cached UUID Field                                               // UUID Field
+      case tpe: TypeRef if tpe <:< typeOf[UUID]  =>                                                                                                         // UUID Field
+        generatedObjectCache += uuidKey
+        uuidField
       case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Map Field
       case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket           // Iteration Field
       case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket                // Option Field
       case tpe: TypeRef if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes                                                           // Cached case class record
       case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>                                                                                    // case class field
         generatedObjectCache += tpe.key
-        recordSchemaPreamable(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
+        recordSchemaPreamble(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
       case tpe: TypeRef if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
@@ -116,7 +121,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def objectFieldToSchema(sym: Symbol): Array[Byte] = fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
 
-  private def recordSchemaPreamable(typeSymbol: Symbol): Array[Byte] = namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
+  private def recordSchemaPreamble(typeSymbol: Symbol): Array[Byte] = namespace ++ typeSymbol.owner.fullName.getBytes ++ record ++ recordName ++ typeSymbol.name.decoded.getBytes ++ fields
 
   private def extractFieldType(name: String, tag: FastTypeTag[_]): Type =
     tag.tpe.members.filter(!_.isMethod).find(_.name.decoded.trim == name) match {

@@ -2,6 +2,6 @@
  "type": "record",
  "name": "SingleOptionUuid",
  "fields": [
-     {"name": "uuid", "type": ["null",{"type": "fixed", "size": 16, "name": "uuid"}]}
+     {"name": "uuid", "type": ["null",{"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}]}
  ]
 }
