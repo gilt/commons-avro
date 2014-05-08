@@ -1,17 +1,17 @@
-gilt.GiltProject.jarSettings
-
 name := "commons-avro"
 
 organization := "com.gilt"
 
 scalaVersion := "2.10.3"
 
+// Can remove when we stop  building 2.10.x
+// http://docs.scala-lang.org/overviews/reflection/thread-safety.html
+fork in test := false
+
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.7.6",
-  // Remove when scala-pickling fix issue https://github.com/scala/pickling/issues/119 and https://github.com/scala/pickling/issues/120
-  "org.scalamacros" %% "quasiquotes" % "2.0.0-M8",
   "org.scala-lang" %% "scala-pickling" % "0.8.0",
-  "org.scalatest" %% "scalatest" % "2.1.0" % "test",
+  "org.scalatest" %% "scalatest" % "2.1.3" % "test",
   "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 )
 
@@ -46,7 +46,7 @@ pomExtra := (
     </developer>
     <developer>
       <id>ebowman</id>
-      <name>Eric Bowman</id>
+      <name>Eric Bowman</name>
       <url>https://github.com/ebowman</url> 
     </developer>	
   </developers>
