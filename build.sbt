@@ -44,6 +44,11 @@ pomExtra := (
       <name>Peter Barron</name>
       <url>https://github.com/pbarron</url>
     </developer>
+    <developer>
+      <id>ebowman</id>
+      <name>Eric Bowman</id>
+      <url>https://github.com/ebowman</url> 
+    </developer>	
   </developers>
 )
 
