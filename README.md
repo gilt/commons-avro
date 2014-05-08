@@ -40,3 +40,7 @@ Converting a case class to avro schema
 4. List[Byte] and Set[Byte] should be converted avro bytes type instead of an array of bytes.
 5. Blocked array or maps are not supported.
 6. Writing case classes straight into an 'InputStream'.
+
+## License
+Copyright 2014 Gilt Groupe, Inc. 
+Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 
