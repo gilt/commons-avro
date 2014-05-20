@@ -6,7 +6,7 @@ scalaVersion := "2.10.3"
 
 // Can remove when we stop  building 2.10.x
 // http://docs.scala-lang.org/overviews/reflection/thread-safety.html
-fork in test := false
+parallelExecution in Test := false
 
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.7.6",
