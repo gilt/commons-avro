@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream
 import scala.reflect.ClassTag
 import com.gilt.pickling.util.Tools._
 import scala.collection.mutable
+import scala.reflect.runtime.universe._
 
 object AvroPickleReader {
   private val instantiableList = typeOf[::[Any]]

@@ -7,6 +7,7 @@ import com.gilt.pickling.util.Types._
 import scala.pickling.PicklingException
 import scala.Some
 import java.util.UUID
+import scala.reflect.runtime.universe._
 
 object AvroSchemaPickleBuilder {
   private val namespace = """{"namespace":"""".getBytes
