@@ -4,6 +4,7 @@ import scala.pickling._
 import scala.reflect.runtime.universe.{TypeRef, Type, ClassSymbol, typeOf}
 import scala.pickling.PicklingException
 import scala.collection.mutable
+import scala.reflect.runtime.universe._
 
 final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutput = new AvroEncodingOutput()) extends PBuilder with PickleTools {
 

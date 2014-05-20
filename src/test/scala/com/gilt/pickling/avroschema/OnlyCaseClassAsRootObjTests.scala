@@ -90,7 +90,7 @@ class OnlyCaseClassAsRootObjTests extends FunSuite with Assertions {
   }
 
   test("Should not serialise a Unit") {
-    val someUnit: Unit = { "String"}
+    val someUnit: Unit = ()
     intercept[NotImplementedError] {
       // a scala pickling error
       someUnit.pickle
