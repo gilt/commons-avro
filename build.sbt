@@ -2,7 +2,7 @@ name := "commons-avro"
 
 organization := "com.gilt"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 // Can remove when we stop  building 2.10.x
 // http://docs.scala-lang.org/overviews/reflection/thread-safety.html
@@ -47,8 +47,8 @@ pomExtra := (
     <developer>
       <id>ebowman</id>
       <name>Eric Bowman</name>
-      <url>https://github.com/ebowman</url> 
-    </developer>	
+      <url>https://github.com/ebowman</url>
+    </developer>
   </developers>
 )
 
