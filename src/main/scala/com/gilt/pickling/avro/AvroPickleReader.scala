@@ -119,9 +119,9 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       case tpe if tpe.isEffectivelyPrimitive && isNotRootObject => tag                                                     // A Primitive type
       case tpe if tpe <:< uuidType && isNotRootObject => tag                                                               // A UUID type
       case tpe if (tpe <:< FastTypeTag.ScalaString.tpe || tpe <:< FastTypeTag.JavaString.tpe) && isNotRootObject => tag    // A String type
-      case tpe if tpe <:< listType && parentIsACaseClassOrOption => buildFastTypeTagWithInstantiableList(tpe)              // Handles the case that List does not have an empty constructor
-      case tpe if (tpe <:< iterableType || tpe <:< arrayType) && !(tpe <:< listType) && parentIsACaseClassOrOption => tag  // A Iteration or Array type.
-      case tpe if tpe <:< optionType && parentIsACaseClass => buildFastTypeTagFromOption(tpe)                              // Handles the case where the next type is an option
+      case tpe if tpe <:< listType && isNotRootObject => buildFastTypeTagWithInstantiableList(tpe)                         // Handles the case that List does not have an empty constructor
+      case tpe if (tpe <:< iterableType || tpe <:< arrayType) && !(tpe <:< listType) && isNotRootObject => tag             // A Iteration or Array type.
+      case tpe if tpe <:< optionType && isNotRootObject => buildFastTypeTagFromOption(tpe)                                 // Handles the case where the next type is an option
       case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< iterableType) => tag                        // A Case Class type
       case tpe => throw new PicklingException(s"$tpe is not supported")
     }
@@ -165,20 +165,6 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     }
 
   private def isNotRootObject: Boolean = tags.length > 0
-
-  private def parentIsACaseClassOrOption: Boolean = parentIsACaseClass || parentIsAnOption
-
-  private def parentIsACaseClass: Boolean =
-    tags.elems match {
-      case TypeRef(_, sym: ClassSymbol, _) :: tail if sym.isCaseClass => true
-      case _ => false
-    }
-
-  private def parentIsAnOption: Boolean =
-    tags.elems match {
-      case TypeRef(tpe, _, _) :: tail if tpe <:< optionType => true
-      case _ => false
-    }
 
   private def extractFixedLengthArray: Array[Byte] = {
     val uuidInBytes = new Array[Byte](16)
