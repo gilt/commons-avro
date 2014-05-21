@@ -13,33 +13,36 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
 
   @inline def beginEntry(picklee: Any): PBuilder = withHints {
     hints =>
-      (hints.tag.tpe, hints.tag.key) match {
-        case (tpe, KEY_INT) if isNotRootObject => buffer.encodeIntTo(picklee.asInstanceOf[Int])
-        case (_, KEY_LONG) if isNotRootObject => buffer.encodeLongTo(picklee.asInstanceOf[Long])
-        case (_, KEY_FLOAT) if isNotRootObject => buffer.encodeFloatTo(picklee.asInstanceOf[Float])
-        case (_, KEY_DOUBLE) if isNotRootObject => buffer.encodeDoubleTo(picklee.asInstanceOf[Double])
-        case (_, KEY_BOOLEAN) if isNotRootObject => buffer.encodeBooleanTo(picklee.asInstanceOf[Boolean])
-        case (_, KEY_SCALA_STRING) | (_, KEY_JAVA_STRING) if isNotRootObject => buffer.encodeStringTo(picklee.asInstanceOf[String])
-        case (_, KEY_BYTE) if isNotRootObject => buffer.encodeByteTo(picklee.asInstanceOf[Byte])
-        case (_, KEY_SHORT) if isNotRootObject => buffer.encodeShortTo(picklee.asInstanceOf[Short])
-        case (_, KEY_CHAR) if isNotRootObject => buffer.encodeCharTo(picklee.asInstanceOf[Char])
-        case (_, KEY_ARRAY_INT) if parentIsACaseClass => buffer.encodeIntArrayTo(picklee.asInstanceOf[Array[Int]])
-        case (_, KEY_ARRAY_LONG) if parentIsACaseClass => buffer.encodeLongArrayTo(picklee.asInstanceOf[Array[Long]])
-        case (_, KEY_ARRAY_FLOAT) if parentIsACaseClass => buffer.encodeFloatArrayTo(picklee.asInstanceOf[Array[Float]])
-        case (_, KEY_ARRAY_DOUBLE) if parentIsACaseClass => buffer.encodeDoubleArrayTo(picklee.asInstanceOf[Array[Double]])
-        case (_, KEY_ARRAY_BOOLEAN) if parentIsACaseClass => buffer.encodeBooleanArrayTo(picklee.asInstanceOf[Array[Boolean]])
-        case (_, KEY_ARRAY_BYTE) if parentIsACaseClass => buffer.encodeByteArrayTo(picklee.asInstanceOf[Array[Byte]])
-        case (_, KEY_ARRAY_SHORT) if parentIsACaseClass => buffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
-        case (_, KEY_ARRAY_CHAR) if parentIsACaseClass => buffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
-        case (_, KEY_UUID) if parentIsACaseClass => //Nothing to do. Wait for bytes field.
-        case (_, KEY_ARRAY_BYTE) if tags.head <:< uuidType => buffer.encodeFixedByteArrayTo(picklee.asInstanceOf[Array[Byte]])
-        case (_, KEY_NIL) if parentIsACaseClass => buffer.encodeByteArrayTo(Array.empty)
-        case (_, KEY_NONE) if parentIsACaseClass => buffer.encodeLongTo(0)
-        case (tpe, _) if tpe <:< someType && parentIsACaseClass => buffer.encodeLongTo(1)
-        case (tpe, _) if isSupportedCollectionType(tpe) && parentIsACaseClass =>
-        case (tpe@TypeRef(_, s: ClassSymbol, _), _) if s.isCaseClass && !(tpe <:< iterableType) =>
-        case (_, KEY_UNIT) | (_, KEY_NULL) => throw new PicklingException("Not supported.")
-        case (_, key) => throw new PicklingException(s"$key is not supported.")
+      hints.tag.key match {
+        case KEY_INT if isNotRootObject => buffer.encodeIntTo(picklee.asInstanceOf[Int])
+        case KEY_LONG if isNotRootObject => buffer.encodeLongTo(picklee.asInstanceOf[Long])
+        case KEY_FLOAT if isNotRootObject => buffer.encodeFloatTo(picklee.asInstanceOf[Float])
+        case KEY_DOUBLE if isNotRootObject => buffer.encodeDoubleTo(picklee.asInstanceOf[Double])
+        case KEY_BOOLEAN if isNotRootObject => buffer.encodeBooleanTo(picklee.asInstanceOf[Boolean])
+        case KEY_SCALA_STRING | KEY_JAVA_STRING if isNotRootObject => buffer.encodeStringTo(picklee.asInstanceOf[String])
+        case KEY_BYTE if isNotRootObject => buffer.encodeByteTo(picklee.asInstanceOf[Byte])
+        case KEY_SHORT if isNotRootObject => buffer.encodeShortTo(picklee.asInstanceOf[Short])
+        case KEY_CHAR if isNotRootObject => buffer.encodeCharTo(picklee.asInstanceOf[Char])
+        case KEY_ARRAY_INT if parentIsACaseClass => buffer.encodeIntArrayTo(picklee.asInstanceOf[Array[Int]])
+        case KEY_ARRAY_LONG if parentIsACaseClass => buffer.encodeLongArrayTo(picklee.asInstanceOf[Array[Long]])
+        case KEY_ARRAY_FLOAT if parentIsACaseClass => buffer.encodeFloatArrayTo(picklee.asInstanceOf[Array[Float]])
+        case KEY_ARRAY_DOUBLE if parentIsACaseClass => buffer.encodeDoubleArrayTo(picklee.asInstanceOf[Array[Double]])
+        case KEY_ARRAY_BOOLEAN if parentIsACaseClass => buffer.encodeBooleanArrayTo(picklee.asInstanceOf[Array[Boolean]])
+        case KEY_ARRAY_BYTE if parentIsACaseClass => buffer.encodeByteArrayTo(picklee.asInstanceOf[Array[Byte]])
+        case KEY_ARRAY_SHORT if parentIsACaseClass => buffer.encodeShortArrayTo(picklee.asInstanceOf[Array[Short]])
+        case KEY_ARRAY_CHAR if parentIsACaseClass => buffer.encodeCharArrayTo(picklee.asInstanceOf[Array[Char]])
+        case KEY_UUID if parentIsACaseClass => //Nothing to do. Wait for bytes field.
+        case KEY_ARRAY_BYTE if tags.head <:< uuidType => buffer.encodeFixedByteArrayTo(picklee.asInstanceOf[Array[Byte]])
+        case KEY_NIL if parentIsACaseClass => buffer.encodeByteArrayTo(Array.empty)
+        case KEY_NONE if parentIsACaseClass => buffer.encodeLongTo(0)
+        case KEY_UNIT | KEY_NULL => throw new PicklingException("Not supported.")
+        case _ =>
+          hints.tag.tpe match {
+            case tpe if tpe <:< someType && parentIsACaseClass => buffer.encodeLongTo(1)
+            case tpe if isSupportedCollectionType(tpe) && parentIsACaseClass =>
+            case tpe@TypeRef(_, s: ClassSymbol, _) if s.isCaseClass && !(tpe <:< iterableType) =>
+            case _ => throw new PicklingException(s"${hints.tag.key} is not supported.")
+          }
       }
       tags.push(hints.tag.tpe)
       this
