@@ -48,26 +48,26 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   def atObject: Boolean = !atPrimitive
 
   def readPrimitive(): Any =
-    (lastTagRead.key, tags.elems) match {
-      case (KEY_INT, _) => decoder.readInt
-      case (KEY_LONG, _) => decoder.readLong
-      case (KEY_FLOAT, _) => decoder.readFloat
-      case (KEY_DOUBLE, _) => decoder.readDouble
-      case (KEY_BOOLEAN, _) => decoder.readBoolean
-      case (KEY_SCALA_STRING, _) | (KEY_JAVA_STRING, _) => decoder.readString()
-      case (KEY_BYTE, _) => decoder.readInt.toByte
-      case (KEY_SHORT, _) => decoder.readInt.toShort
-      case (KEY_CHAR, _) => decoder.readInt.toChar
-      case (KEY_UNIT, _) | (KEY_NULL, _) => throw new PicklingException("Not supported - unit or null.")
-      case (KEY_ARRAY_INT, _) => extractToArray(decoder.readInt)
-      case (KEY_ARRAY_LONG, _) => extractToArray(decoder.readLong)
-      case (KEY_ARRAY_FLOAT, _) => extractToArray(decoder.readFloat)
-      case (KEY_ARRAY_DOUBLE, _) => extractToArray(decoder.readDouble)
-      case (KEY_ARRAY_BOOLEAN, _) => extractToArray(decoder.readBoolean)
-      case (KEY_ARRAY_BYTE, `byteArrayType` :: `uuidType` :: tail ) => extractFixedLengthArray // bytes to generate UUID
-      case (KEY_ARRAY_BYTE, _) => decoder.readBytes(null).array()
-      case (KEY_ARRAY_SHORT, _) => extractToArray(() => decoder.readInt.toShort)
-      case (KEY_ARRAY_CHAR, _) => extractToArray(() => decoder.readInt.toChar)
+    lastTagRead.key match {
+      case KEY_INT => decoder.readInt
+      case KEY_LONG => decoder.readLong
+      case KEY_FLOAT => decoder.readFloat
+      case KEY_DOUBLE => decoder.readDouble
+      case KEY_BOOLEAN => decoder.readBoolean
+      case KEY_SCALA_STRING | KEY_JAVA_STRING => decoder.readString()
+      case KEY_BYTE => decoder.readInt.toByte
+      case KEY_SHORT => decoder.readInt.toShort
+      case KEY_CHAR => decoder.readInt.toChar
+      case KEY_UNIT | KEY_NULL => throw new PicklingException("Not supported - unit or null.")
+      case KEY_ARRAY_INT => extractToArray(decoder.readInt)
+      case KEY_ARRAY_LONG => extractToArray(decoder.readLong)
+      case KEY_ARRAY_FLOAT => extractToArray(decoder.readFloat)
+      case KEY_ARRAY_DOUBLE => extractToArray(decoder.readDouble)
+      case KEY_ARRAY_BOOLEAN => extractToArray(decoder.readBoolean)
+      case KEY_ARRAY_BYTE if tags.elems.take(2) == Seq(byteArrayType, uuidType) => extractFixedLengthArray // bytes to generate UUID
+      case KEY_ARRAY_BYTE => decoder.readBytes(null).array()
+      case KEY_ARRAY_SHORT => extractToArray(() => decoder.readInt.toShort)
+      case KEY_ARRAY_CHAR => extractToArray(() => decoder.readInt.toChar)
       case _ => throw new PicklingException("Not supported - unknown.")
     }
 

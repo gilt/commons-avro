@@ -9,7 +9,6 @@ class AvroSchemaEncodingOutput extends Output[Array[Byte]] {
   val encoder = EncoderFactory.get.directBinaryEncoder(stream, null)
 
   override def put(obj: Array[Byte]): this.type = {
-    encoder.flush()
     stream.write(obj)
     this
   }
