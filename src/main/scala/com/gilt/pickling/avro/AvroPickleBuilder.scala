@@ -1,7 +1,6 @@
 package com.gilt.pickling.avro
 
 import scala.pickling._
-import scala.reflect.runtime.universe.{TypeRef, Type, ClassSymbol, typeOf}
 import scala.pickling.PicklingException
 import scala.collection.mutable
 import scala.reflect.runtime.universe._
@@ -67,7 +66,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
 
   @inline def endCollection(): Unit =
     tags.top match {
-      case t: TypeRef if t <:< mapType => buffer.encoder.writeMapEnd()
+      case tpe if tpe <:< mapType => buffer.encoder.writeMapEnd()
       case _ => buffer.encoder.writeArrayEnd()
     }
 
@@ -79,7 +78,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
 
   private def writeStartOfCollection() =
     tags.top match {
-      case t: TypeRef if t <:< mapType => buffer.encoder.writeMapStart()
+      case tpe if tpe <:< mapType => buffer.encoder.writeMapStart()
       case _ => buffer.encoder.writeArrayStart()
     }
 

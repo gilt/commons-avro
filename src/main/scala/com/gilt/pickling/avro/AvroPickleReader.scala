@@ -1,6 +1,5 @@
 package com.gilt.pickling.avro
 
-import scala.reflect.runtime.universe.{typeOf, Mirror, TypeRef, Type, ClassSymbol}
 import scala.pickling.{PicklingException, FastTypeTag, PReader, PickleTools}
 import org.apache.avro.io.DecoderFactory
 import java.io.ByteArrayInputStream
@@ -82,8 +81,8 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   private def determineCollectionSizeFromLastTag(): Some[Long] =
     lastTagRead.tpe match {
-      case tpe: TypeRef if tpe <:< arrayType || tpe <:< iterableType => Some(decoder.readArrayStart())
-      case tpe: TypeRef if tpe <:< mapType => Some(decoder.readMapStart())
+      case tpe if tpe <:< arrayType || tpe <:< iterableType => Some(decoder.readArrayStart())
+      case tpe if tpe <:< mapType => Some(decoder.readMapStart())
       case _ => throw new PicklingException("Collection is not supported")
     }
 
@@ -117,13 +116,13 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   private def determineNextTag(tag: FastTypeTag[_]): FastTypeTag[_] =
     tag.tpe match {
-      case tpe: TypeRef if tpe.isEffectivelyPrimitive && isNotRootObject => tag                                                     // A Primitive type
-      case tpe: TypeRef if tpe <:< uuidType && isNotRootObject => tag                                                               // A UUID type
-      case tpe: TypeRef if (tpe <:< FastTypeTag.ScalaString.tpe || tpe <:< FastTypeTag.JavaString.tpe) && isNotRootObject => tag    // A String type
-      case tpe: TypeRef if tpe <:< listType && parentIsACaseClassOrOption => buildFastTypeTagWithInstantiableList(tpe)              // Handles the case that List does not have an empty constructor
-      case tpe: TypeRef if (tpe <:< iterableType || tpe <:< arrayType) && !(tpe <:< listType) && parentIsACaseClassOrOption => tag  // A Iteration or Array type.
-      case tpe: TypeRef if tpe <:< optionType && parentIsACaseClass => buildFastTypeTagFromOption(tpe)                              // Handles the case where the next type is an option
-      case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< iterableType) => tag                                 // A Case Class type
+      case tpe if tpe.isEffectivelyPrimitive && isNotRootObject => tag                                                     // A Primitive type
+      case tpe if tpe <:< uuidType && isNotRootObject => tag                                                               // A UUID type
+      case tpe if (tpe <:< FastTypeTag.ScalaString.tpe || tpe <:< FastTypeTag.JavaString.tpe) && isNotRootObject => tag    // A String type
+      case tpe if tpe <:< listType && parentIsACaseClassOrOption => buildFastTypeTagWithInstantiableList(tpe)              // Handles the case that List does not have an empty constructor
+      case tpe if (tpe <:< iterableType || tpe <:< arrayType) && !(tpe <:< listType) && parentIsACaseClassOrOption => tag  // A Iteration or Array type.
+      case tpe if tpe <:< optionType && parentIsACaseClass => buildFastTypeTagFromOption(tpe)                              // Handles the case where the next type is an option
+      case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< iterableType) => tag                        // A Case Class type
       case tpe => throw new PicklingException(s"$tpe is not supported")
     }
 

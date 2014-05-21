@@ -1,7 +1,6 @@
 package com.gilt.pickling.avroschema
 
 import scala.pickling._
-import scala.reflect.runtime.universe.{TypeRef, ClassSymbol, Type, Symbol, typeOf}
 import scala.collection.mutable
 import com.gilt.pickling.util.Types._
 import scala.pickling.PicklingException
@@ -96,29 +95,29 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def typeToBytes(inputTpe: Type): Array[Byte] =
     inputTpe match {
-      case tpe: TypeRef if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key)                                                      // Primitive Field
-      case tpe: TypeRef if tpe <:< typeOf[Array[Byte]] => arrayBytesField                                                                                   // Bytes Array Field
-      case tpe: TypeRef if tpe <:< typeOf[UUID] && generatedObjectCache.contains(uuidKey) => cachedUuidField                                                // Cached UUID Field                                               // UUID Field
-      case tpe: TypeRef if tpe <:< typeOf[UUID]  =>                                                                                                         // UUID Field
+      case tpe if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key)                                                                // Primitive Field
+      case tpe if tpe <:< typeOf[Array[Byte]] => arrayBytesField                                                                                             // Bytes Array Field
+      case tpe if tpe <:< typeOf[UUID] && generatedObjectCache.contains(uuidKey) => cachedUuidField                                                          // Cached UUID Field
+      case tpe if tpe <:< typeOf[UUID]  =>                                                                                                                   // UUID Field
         generatedObjectCache += uuidKey
         uuidField
-      case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Map Field
-      case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket           // Iteration Field
-      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket                // Option Field
-      case tpe: TypeRef if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes                                                           // Cached case class record
-      case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>                                                                                    // case class field
+      case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket  // Map Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket            // Iteration Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket                 // Option Field
+      case tpe if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes                                                                     // Cached case class record
+      case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>                                                                                     // case class field
         generatedObjectCache += tpe.key
         recordSchemaPreamble(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
-      case tpe: TypeRef if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
+      case tpe if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
 
 
-  private def supportedIterationType(tpe: TypeRef): Boolean = tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
+  private def supportedIterationType(tpe: Type): Boolean = tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
 
-  private def supportMapType(tpe: TypeRef, keyType: Type): Boolean = tpe <:< mapType && keyType <:< stringType
+  private def supportMapType(tpe: Type, keyType: Type): Boolean = tpe <:< mapType && keyType <:< stringType
 
-  private def covertObjectFieldsToSchema(tpe: TypeRef): Array[Byte] = tpe.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
+  private def covertObjectFieldsToSchema(tpe: Type): Array[Byte] = tpe.members.filter(!_.isMethod).map(objectFieldToSchema).reduce(_ ++ comma ++ _)
 
   private def objectFieldToSchema(sym: Symbol): Array[Byte] = fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType ++ typeToBytes(sym.typeSignature) ++ endCurlyBracket
 
