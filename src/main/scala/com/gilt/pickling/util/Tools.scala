@@ -1,7 +1,7 @@
 package com.gilt.pickling.util
 
-import scala.reflect.runtime.{universe => ru}
-import ru._
+import scala.reflect.runtime.universe._
+import compat._
 
 object Tools {
   //TODO This is from scala.pickling.internal which is scooped as private.

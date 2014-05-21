@@ -2,11 +2,7 @@ name := "commons-avro"
 
 organization := "com.gilt"
 
-scalaVersion := "2.10.4"
-
-// Can remove when we stop  building 2.10.x
-// http://docs.scala-lang.org/overviews/reflection/thread-safety.html
-parallelExecution in Test := false
+scalaVersion := "2.11.0"
 
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.7.6",
