@@ -1,28 +1,22 @@
 package com.gilt.pickling.avro
 
-import scala.pickling.{PicklingException, FastTypeTag, PReader, PickleTools}
+import scala.pickling._
 import org.apache.avro.io.DecoderFactory
 import java.io.ByteArrayInputStream
 import scala.reflect.ClassTag
-import com.gilt.pickling.util.Tools._
 import scala.collection.mutable
-import scala.reflect.runtime.universe._
-
-object AvroPickleReader {
-  private val instantiableList = typeOf[::[Any]]
-  private val anySymbol = typeOf[Any].typeSymbol
-}
+import scala.reflect.runtime.universe.Mirror
+import scala.pickling.PicklingException
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
 
   import com.gilt.pickling.util.Types._
-  import AvroPickleReader._
 
   //TODO Arrays and Maps are read in Blocks
   //TODO List[Byte] should write avro bytes than array of byte
   //TODO be nice to used a thread local for a reuse BinaryEncoder
   private val decoder = DecoderFactory.get.directBinaryDecoder(new ByteArrayInputStream(arr), null)
-  private val tags = new mutable.Stack[Type]()
+  private val tags = new mutable.Stack[FastTypeTag[_]]()
 
   private var collectionGenericType: Option[FastTypeTag[_]] = None
   private var lastTagReadOption: Option[FastTypeTag[_]] = None
@@ -35,14 +29,14 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       hints =>
         val nextTag = determineNextTag(hints.tag)
         lastTagReadOption = Some(nextTag)
-        tags.push(nextTag.tpe)
+        tags.push(nextTag)
         lastTagRead
     }
   }
 
   def endEntry(): Unit = tags.pop()
 
-  def atPrimitive: Boolean = primitives.contains(lastTagRead.key)
+  def atPrimitive: Boolean = isPrimitive(lastTagRead)
 
   def atObject: Boolean = !atPrimitive
 
@@ -63,7 +57,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       case KEY_ARRAY_FLOAT => extractToArray(decoder.readFloat)
       case KEY_ARRAY_DOUBLE => extractToArray(decoder.readDouble)
       case KEY_ARRAY_BOOLEAN => extractToArray(decoder.readBoolean)
-      case KEY_ARRAY_BYTE if tags.elems.take(2) == Seq(byteArrayType, uuidType) => extractFixedLengthArray // bytes to generate UUID
+      case KEY_ARRAY_BYTE if tags.elems.take(2).map(_.key) == Seq(KEY_ARRAY_BYTE, KEY_UUID) => extractFixedLengthArray // bytes to generate UUID
       case KEY_ARRAY_BYTE => decoder.readBytes(null).array()
       case KEY_ARRAY_SHORT => extractToArray(() => decoder.readInt.toShort)
       case KEY_ARRAY_CHAR => extractToArray(() => decoder.readInt.toChar)
@@ -75,14 +69,14 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   def beginCollection(): PReader = withHints {
     hints =>
       collectionSize = determineCollectionSizeFromLastTag()
-      collectionGenericType = determineGenericTypeConvertToTag(lastTagRead.tpe)
+      collectionGenericType = determineGenericTypeConvertToTag(lastTagRead)
       this
   }
 
   private def determineCollectionSizeFromLastTag(): Some[Long] =
-    lastTagRead.tpe match {
-      case tpe if tpe <:< arrayType || tpe <:< iterableType => Some(decoder.readArrayStart())
-      case tpe if tpe <:< mapType => Some(decoder.readMapStart())
+    lastTagRead match {
+      case tag if isTypeOf(tag, KEY_MAP) => Some(decoder.readMapStart())
+      case tag if isSupportedCollectionType(tag) => Some(decoder.readArrayStart())
       case _ => throw new PicklingException("Collection is not supported")
     }
 
@@ -94,9 +88,9 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   def readElement(): PReader = {
     collectionGenericType match {
-      case Some(x) =>
-        tags.push(x.tpe)
-        hintTag(x)
+      case Some(tag) =>
+        tags.push(tag)
+        hintTag(tag)
       case _ => throw new PicklingException("CollectionGenericType field is null. Should not happen")
     }
     this
@@ -114,36 +108,28 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       case _ => throw new PicklingException("LastTagRead field is null. Should not happen")
     }
 
-  private def determineNextTag(tag: FastTypeTag[_]): FastTypeTag[_] =
-    tag.tpe match {
-      case tpe if tpe.isEffectivelyPrimitive && isNotRootObject => tag                                                     // A Primitive type
-      case tpe if tpe <:< uuidType && isNotRootObject => tag                                                               // A UUID type
-      case tpe if (tpe <:< FastTypeTag.ScalaString.tpe || tpe <:< FastTypeTag.JavaString.tpe) && isNotRootObject => tag    // A String type
-      case tpe if tpe <:< listType && isNotRootObject => buildFastTypeTagWithInstantiableList(tpe)                         // Handles the case that List does not have an empty constructor
-      case tpe if (tpe <:< iterableType || tpe <:< arrayType) && !(tpe <:< listType) && isNotRootObject => tag             // A Iteration or Array type.
-      case tpe if tpe <:< optionType && isNotRootObject => buildFastTypeTagFromOption(tpe)                                 // Handles the case where the next type is an option
-      case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< iterableType) => tag                        // A Case Class type
-      case tpe => throw new PicklingException(s"$tpe is not supported")
+  private def determineNextTag(fastTypeTag: FastTypeTag[_]): FastTypeTag[_] =
+    fastTypeTag match {
+      case tag if isPrimitive(tag) && isNotRootObject => tag                                                               // A Primitive type
+      case tag if isTypeOf(tag, KEY_UUID) && isNotRootObject => tag                                                        // A UUID type
+      case tag if (isTypeOf(tag, KEY_SCALA_STRING) || isTypeOf(tag, KEY_JAVA_STRING)) && isNotRootObject => tag            // A String type
+      case tag if isTypeOf(tag, KEY_LIST) && isNotRootObject => buildFastTypeTagWithInstantiableList(tag)                  // Handles the case that List does not have an empty constructor
+      case tag if isSupportedCollectionType(tag) && !isTypeOf(tag, KEY_LIST) && isNotRootObject => tag                     // A Iteration or Array type.
+      case tag if isTypeOf(tag, KEY_OPTION) && isNotRootObject => buildFastTypeTagFromOption(tag)                          // Handles the case where the next type is an option
+      case tag if isCaseClass(tag) && !isSupportedCollectionType(tag) => tag                                               // A Case Class type
+      case tag => throw new PicklingException(s"$tag is not supported")
     }
 
-  private def buildFastTypeTagFromOption(tpe: Type): FastTypeTag[_] =
+  private def buildFastTypeTagFromOption(tag: FastTypeTag[_]): FastTypeTag[_] =
     decoder.readLong() match {
-      case 1L => buildSomeFastTypeTagFromOption(tpe)
+      case 1L => FastTypeTag(s"$KEY_SOME[${extractGenericTypeFromTag(tag)}]")
       case 0L => FastTypeTag(mirror, KEY_NONE)
       case _ => throw new PicklingException("Corrupted input. Unable to determine status of option")
     }
 
-  private def buildSomeFastTypeTagFromOption(tpe: Type): FastTypeTag[_] = {
-    val optionType = substituteAnyInTypeWith(someType, determineGenericType(tpe))
-    FastTypeTag(mirror, optionType, optionType.key)
-  }
+  private def buildFastTypeTagWithInstantiableList(tag: FastTypeTag[_]): FastTypeTag[_] = FastTypeTag(s"$KEY_LIST_COLON_COLON[${extractGenericTypeFromTag(tag)}]")
 
-  private def buildFastTypeTagWithInstantiableList(tpe: Type): FastTypeTag[_] = {
-    val listType = substituteAnyInTypeWith(instantiableList, determineGenericType(tpe))
-    FastTypeTag(mirror, listType, listType.key)
-  }
-
-  private def substituteAnyInTypeWith(rootType: Type, to: Type): Type = rootType.map(tpe => if (tpe.typeSymbol == anySymbol) to else tpe)
+  private def extractGenericTypeFromTag(tag: FastTypeTag[_]): String = tag.key.substring(tag.key.indexOf('[') + 1, tag.key.length - 1)
 
   private def extractToArray[T: ClassTag](readFunction: () => T): Array[T] = {
     val items = new scala.collection.mutable.ArrayBuffer[T]
@@ -152,17 +138,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     items.toArray
   }
 
-  private def determineGenericTypeConvertToTag(tpe: Type): Some[FastTypeTag[_]] = {
-    val genericType = determineGenericType(tpe)
-    Some(FastTypeTag(mirror, genericType, genericType.typeSymbol.fullName))
-  }
-
-  private def determineGenericType(tpe: Type): Type =
-    tpe match {
-      case TypeRef(_, _, genericType :: Nil) => genericType
-      case TypeRef(_, _, keyType :: genericType :: Nil) if keyType <:< stringType => genericType // only Map[String, _] supported by avro
-      case _ => throw new PicklingException(s"Cannot determine generic type of collection ($tpe)")
-    }
+  private def determineGenericTypeConvertToTag(tag: FastTypeTag[_]): Option[FastTypeTag[_]] = Some(FastTypeTag(extractGenericTypeFromTag(tag)))
 
   private def isNotRootObject: Boolean = tags.length > 0
 

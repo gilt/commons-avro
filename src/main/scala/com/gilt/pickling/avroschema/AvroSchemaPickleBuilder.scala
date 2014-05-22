@@ -42,6 +42,14 @@ object AvroSchemaPickleBuilder {
     KEY_SCALA_STRING -> stringField,
     KEY_JAVA_STRING -> stringField
   )
+
+  val mapType = typeOf[Map[String,_]]
+  val optionType = typeOf[Option[_]]
+  val seqType = typeOf[Seq[_]]
+  val setType = typeOf[Set[_]]
+  val listType = typeOf[List[Any]]
+  val arrayType = typeOf[Array[_]]
+  val stringType = typeOf[String]
 }
 
 final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: AvroSchemaEncodingOutput = new AvroSchemaEncodingOutput()) extends PBuilder with PickleTools {
@@ -85,10 +93,10 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
 
   private def processObject(tag: FastTypeTag[_]) =
     tag.tpe match {
-      case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< listType) =>
+      case tpe if isCaseClass(tpe) && !(tpe <:< listType) =>
         tags.push(tag)
         generatedObjectCache += tpe.key
-        buffer.put(recordSchemaPreamble(sym))
+        buffer.put(recordSchemaPreamble(tpe.typeSymbol))
       case _ => throw new PicklingException("Only case classes are supported as root objects")
     }
 
@@ -105,13 +113,12 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket            // Iteration Field
       case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket                 // Option Field
       case tpe if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes                                                                     // Cached case class record
-      case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>                                                                                     // case class field
+      case tpe if isCaseClass(tpe) =>                                                                                                                        // case class field
         generatedObjectCache += tpe.key
-        recordSchemaPreamble(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
+        recordSchemaPreamble(tpe.typeSymbol) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
       case tpe if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
-
 
   private def supportedIterationType(tpe: Type): Boolean = tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
 

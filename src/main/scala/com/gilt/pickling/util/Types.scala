@@ -1,25 +1,23 @@
 package com.gilt.pickling.util
 
 import scala.pickling.FastTypeTag
-import scala.reflect.runtime.universe.typeOf
-import scala.Some
-import java.util.UUID
+import scala.reflect.runtime.universe.Type
 
 object Types {
-  val someType = typeOf[Some[Any]]
-  val iterableType = typeOf[Iterable[_]]
-  val setType = typeOf[Set[_]]
-  val seqType = typeOf[Seq[_]]
-  val arrayType = typeOf[Array[_]]
-  val listType = typeOf[List[Any]]
-  val optionType = typeOf[Option[_]]
-  val mapType = typeOf[Map[String,_]]
-  val stringType = typeOf[String]
-  val byteArrayType = typeOf[Array[Byte]]
+  val KEY_UUID = "java.util.UUID"
+  val KEY_SOME = "scala.Some"
+  val KEY_OPTION = "scala.Option"
+  val KEY_NONE = "scala.None.type"
 
-  val TAG_UUID = implicitly[FastTypeTag[UUID]]
-  val KEY_UUID = TAG_UUID.key
-  val uuidType = TAG_UUID.tpe
+  val KEY_MAP = "scala.collection.immutable.Map[java.lang.String,"
+  val KEY_ARRAY = "scala.Array"
+  val KEY_SET = "scala.collection.immutable.Set"
+  val KEY_SEQ = "scala.collection.Seq"
+  val KEY_VECTOR = "scala.collection.immutable.Vector"
+
+  val KEY_LIST = "scala.collection.immutable.List"
+  val KEY_LIST_COLON_COLON = "scala.collection.immutable.$colon$colon"
+  val KEY_NIL = "scala.collection.immutable.Nil.type"
 
   val KEY_NULL = FastTypeTag.Null.key
   val KEY_UNIT = FastTypeTag.Unit.key
@@ -46,10 +44,15 @@ object Types {
   val KEY_ARRAY_SHORT = FastTypeTag.ArrayShort.key
   val KEY_ARRAY_CHAR = FastTypeTag.ArrayChar.key
 
-  val KEY_NIL = "scala.collection.immutable.Nil.type"
-  val KEY_NONE = "scala.None.type"
-
   val primitives = Set(KEY_NULL, KEY_BYTE, KEY_SHORT, KEY_CHAR, KEY_INT, KEY_LONG, KEY_BOOLEAN, KEY_FLOAT,
     KEY_DOUBLE, KEY_UNIT, KEY_SCALA_STRING, KEY_JAVA_STRING, KEY_ARRAY_BYTE, KEY_ARRAY_SHORT, KEY_ARRAY_CHAR,
     KEY_ARRAY_INT, KEY_ARRAY_LONG, KEY_ARRAY_BOOLEAN, KEY_ARRAY_FLOAT, KEY_ARRAY_DOUBLE)
+
+  val supportedCollections = Set(KEY_MAP, KEY_ARRAY, KEY_SET, KEY_SEQ, KEY_LIST, KEY_VECTOR, KEY_LIST_COLON_COLON, KEY_NIL)
+
+  def isPrimitive(tag: FastTypeTag[_]): Boolean = primitives.contains(tag.key)
+  def isTypeOf(tag: FastTypeTag[_], baseType: String): Boolean =  tag.key.startsWith(baseType)
+  def isCaseClass(tag: FastTypeTag[_]) : Boolean = synchronized(isCaseClass(tag.tpe))
+  def isCaseClass(tpe: Type) : Boolean = synchronized(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass) //TODO Cache Result
+  def isSupportedCollectionType(tag: FastTypeTag[_]): Boolean = supportedCollections.exists(collectionType => isTypeOf(tag, collectionType))
 }
