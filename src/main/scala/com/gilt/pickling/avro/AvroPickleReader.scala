@@ -7,10 +7,11 @@ import scala.reflect.ClassTag
 import scala.collection.mutable
 import scala.reflect.runtime.universe.Mirror
 import scala.pickling.PicklingException
+import com.gilt.pickling.Types
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
 
-  import com.gilt.pickling.util.Types._
+  import Types._
 
   //TODO Arrays and Maps are read in Blocks
   //TODO List[Byte] should write avro bytes than array of byte
@@ -116,14 +117,14 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
       case tag if isTypeOf(tag, KEY_LIST) && isNotRootObject => buildFastTypeTagWithInstantiableList(tag)                  // Handles the case that List does not have an empty constructor
       case tag if isSupportedCollectionType(tag) && !isTypeOf(tag, KEY_LIST) && isNotRootObject => tag                     // A Iteration or Array type.
       case tag if isTypeOf(tag, KEY_OPTION) && isNotRootObject => buildFastTypeTagFromOption(tag)                          // Handles the case where the next type is an option
-      case tag if isCaseClass(tag) && !isSupportedCollectionType(tag) => tag                                               // A Case Class type
+      case tag if !isSupportedCollectionType(tag) && isCaseClass(tag) => tag                                               // A Case Class type
       case tag => throw new PicklingException(s"$tag is not supported")
     }
 
   private def buildFastTypeTagFromOption(tag: FastTypeTag[_]): FastTypeTag[_] =
     decoder.readLong() match {
       case 1L => FastTypeTag(s"$KEY_SOME[${extractGenericTypeFromTag(tag)}]")
-      case 0L => FastTypeTag(mirror, KEY_NONE)
+      case 0L => FastTypeTag(KEY_NONE)
       case _ => throw new PicklingException("Corrupted input. Unable to determine status of option")
     }
 

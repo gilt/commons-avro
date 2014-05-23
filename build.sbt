@@ -2,7 +2,14 @@ name := "commons-avro"
 
 organization := "com.gilt"
 
-scalaVersion := "2.11.0"
+scalaVersion := "2.10.4"
+
+crossScalaVersions := Seq("2.11.0", "2.10.4")
+
+unmanagedSourceDirectories in Compile <+= (scalaVersion, sourceDirectory in Compile) {
+  case (v, dir) if v startsWith "2.10" => dir / "scala_2.10"
+  case (v, dir) if v startsWith "2.11" => dir / "scala_2.11"
+}
 
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.7.6",

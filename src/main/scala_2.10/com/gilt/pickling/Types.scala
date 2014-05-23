@@ -1,7 +1,6 @@
-package com.gilt.pickling.util
+package com.gilt.pickling
 
 import scala.pickling.FastTypeTag
-import scala.reflect.runtime.universe.Type
 
 object Types {
   val KEY_UUID = "java.util.UUID"
@@ -52,7 +51,6 @@ object Types {
 
   def isPrimitive(tag: FastTypeTag[_]): Boolean = primitives.contains(tag.key)
   def isTypeOf(tag: FastTypeTag[_], baseType: String): Boolean =  tag.key.startsWith(baseType)
-  def isCaseClass(tag: FastTypeTag[_]) : Boolean = synchronized(isCaseClass(tag.tpe))
-  def isCaseClass(tpe: Type) : Boolean = synchronized(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass) //TODO Cache Result
+  def isCaseClass(tag: FastTypeTag[_]) : Boolean = Types.synchronized(tag.tpe.typeSymbol.isClass && tag.tpe.typeSymbol.asClass.isCaseClass)
   def isSupportedCollectionType(tag: FastTypeTag[_]): Boolean = supportedCollections.exists(collectionType => isTypeOf(tag, collectionType))
 }

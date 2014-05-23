@@ -3,10 +3,11 @@ package com.gilt.pickling.avro
 import scala.pickling._
 import scala.pickling.PicklingException
 import scala.collection.mutable
+import com.gilt.pickling.Types
 
 final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutput = new AvroEncodingOutput()) extends PBuilder with PickleTools {
 
-  import com.gilt.pickling.util.Types._
+  import Types._
 
   private val tags = new mutable.Stack[FastTypeTag[_]]()
 
@@ -39,7 +40,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
           hints.tag match {
             case tag if isTypeOf(tag, KEY_SOME) && isNotRootObject => buffer.encodeLongTo(1)
             case tag if isSupportedCollectionType(tag) && isNotRootObject =>
-            case tag if isCaseClass(tag) && !isSupportedCollectionType(tag) => //Nothing to do. Wait for fields.
+            case tag if !isSupportedCollectionType(tag) && isCaseClass(tag) => //Nothing to do. Wait for fields.
             case _ => throw new PicklingException(s"${hints.tag.key} is not supported.")
           }
       }
