@@ -7,6 +7,7 @@ import Types._
 import scala.pickling.PicklingException
 import scala.Some
 import java.util.UUID
+import scala.reflect.runtime.universe.typeOf
 
 object AvroSchemaPickleBuilder {
   private val namespace = """{"namespace":"""".getBytes
@@ -43,26 +44,24 @@ object AvroSchemaPickleBuilder {
     KEY_JAVA_STRING -> stringField
   )
 
-  private val mapType = implicitly[FastTypeTag[Map[String, _]]].tpe
-  private val optionType = implicitly[FastTypeTag[Option[_]]].tpe
-  private val seqType = implicitly[FastTypeTag[Seq[_]]].tpe
-  private val setType = implicitly[FastTypeTag[Set[_]]].tpe
-  private val listType = implicitly[FastTypeTag[List[Any]]].tpe
-  private val arrayType = implicitly[FastTypeTag[Array[_]]].tpe
-  private val byteArrayType = implicitly[FastTypeTag[Array[Byte]]].tpe
-  private val stringType = implicitly[FastTypeTag[String]].tpe
-  private val uuidType = implicitly[FastTypeTag[UUID]].tpe
+  private val mapType = Types.synchronized(typeOf[Map[String,_]])
+  private val optionType = Types.synchronized(typeOf[Option[_]])
+  private val seqType = Types.synchronized(typeOf[Seq[_]])
+  private val setType = Types.synchronized(typeOf[Set[_]])
+  private val listType = Types.synchronized(typeOf[List[Any]])
+  private val arrayType = Types.synchronized(typeOf[Array[_]])
+  private val byteArrayType = Types.synchronized(typeOf[Array[Byte]])
+  private val stringType = Types.synchronized(typeOf[String])
+  private val uuidType = Types.synchronized(typeOf[UUID])
 }
 
 //
-// This object is synchronized due to 2.10 thread safe issue with reflection.
+// This object is synchronized due to scala 2.10 thread safe issue with reflection.
 //
 final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: AvroSchemaEncodingOutput = new AvroSchemaEncodingOutput()) extends PBuilder with PickleTools {
 
   import AvroSchemaPickleBuilder._
-  import com.gilt.pickling.util.Tools._
   import scala.reflect.runtime.universe.{Type, Symbol}
-  import Types._
 
   private var fieldCount = 0
   private val tags = new mutable.Stack[FastTypeTag[_]]()
@@ -104,7 +103,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
     tag.tpe match {
       case tpe@TypeRef(_, sym: ClassSymbol, _) if sym.isCaseClass && !(tpe <:< listType) =>
         tags.push(tag)
-        generatedObjectCache += tpe.key
+        generatedObjectCache += typeToString(tpe)
         buffer.put(recordSchemaPreamble(sym))
       case _ => throw new PicklingException("Only case classes are supported as root objects")
     }
@@ -113,7 +112,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
   private def typeToBytes(inputTpe: Type): Array[Byte] = {
     import scala.reflect.runtime.universe._
     inputTpe match {
-      case tpe if primitiveSymbolToBytes.contains(tpe.key) => primitiveSymbolToBytes(tpe.key) // Primitive Field
+      case tpe if primitiveSymbolToBytes.contains(typeToString(tpe)) => primitiveSymbolToBytes(typeToString(tpe)) // Primitive Field
       case tpe if tpe <:< byteArrayType => arrayBytesField // Bytes Array Field
       case tpe if tpe <:< uuidType && generatedObjectCache.contains(uuidKey) => cachedUuidField // Cached UUID Field
       case tpe if tpe <:< uuidType => // UUID Field
@@ -122,14 +121,16 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Map Field
       case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Iteration Field
       case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket // Option Field
-      case tpe if generatedObjectCache.contains(tpe.key) => s""""${tpe.key}"""".getBytes // Cached case class record
+      case tpe if generatedObjectCache.contains(typeToString(tpe)) => s""""${typeToString(tpe)}"""".getBytes // Cached case class record
       case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass => // case class field
-        generatedObjectCache += tpe.key
+        generatedObjectCache += typeToString(tpe)
         recordSchemaPreamble(s) ++ covertObjectFieldsToSchema(tpe) ++ endSquareBracket ++ endCurlyBracket
-      case tpe if tpe.key == KEY_UNIT || tpe.key == KEY_NULL => throw new PicklingException("Not supported.")
+      case tpe if tpe <:< FastTypeTag.Unit.tpe || tpe <:< FastTypeTag.Null.tpe => throw new PicklingException("Not supported.")
       case _ => throw new PicklingException("Only case classes are supported")
     }
   }
+
+  private def typeToString(tpe: Type) = tpe.typeSymbol.fullName
 
   private def supportedIterationType(tpe: Type): Boolean = tpe <:< arrayType || tpe <:< setType || tpe <:< seqType
 
