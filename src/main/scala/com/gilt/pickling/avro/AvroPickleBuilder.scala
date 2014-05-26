@@ -3,7 +3,7 @@ package com.gilt.pickling.avro
 import scala.pickling._
 import scala.pickling.PicklingException
 import scala.collection.mutable
-import com.gilt.pickling.Types
+import com.gilt.pickling.util.Types
 
 final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutput = new AvroEncodingOutput()) extends PBuilder with PickleTools {
 

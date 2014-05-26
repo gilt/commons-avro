@@ -1,4 +1,4 @@
-package com.gilt.pickling
+package com.gilt.pickling.util
 
 import scala.pickling.FastTypeTag
 
@@ -49,12 +49,13 @@ object Types {
 
   val supportedCollections = Set(KEY_MAP, KEY_ARRAY, KEY_SET, KEY_SEQ, KEY_LIST, KEY_VECTOR, KEY_LIST_COLON_COLON, KEY_NIL)
 
-  // The use of this cache makes the assumption that the number of case classes will be bounded.
+  // The use of this cache makes the assumption that the number of case classes will be bounded. 
   private val isCaseClassResultsCache = scala.collection.mutable.Map[String, Boolean]()
-  private def actualIsCaseClass(tag: FastTypeTag[_]) : Boolean = tag.tpe.typeSymbol.isClass && tag.tpe.typeSymbol.asClass.isCaseClass
+  // This is synchronized due to a scala 2.10 reflection bug.
+  private def synchronizedIsCaseClass(tag: FastTypeTag[_]) : Boolean = Types.synchronized(tag.tpe.typeSymbol.isClass && tag.tpe.typeSymbol.asClass.isCaseClass)
 
   def isPrimitive(tag: FastTypeTag[_]): Boolean = primitives.contains(tag.key)
   def isTypeOf(tag: FastTypeTag[_], baseType: String): Boolean =  tag.key.startsWith(baseType)
-  def isCaseClass(tag: FastTypeTag[_]) : Boolean = isCaseClassResultsCache.getOrElseUpdate(tag.key, actualIsCaseClass(tag))
+  def isCaseClass(tag: FastTypeTag[_]) : Boolean = isCaseClassResultsCache.getOrElseUpdate(tag.key, synchronizedIsCaseClass(tag))
   def isSupportedCollectionType(tag: FastTypeTag[_]): Boolean = supportedCollections.exists(collectionType => isTypeOf(tag, collectionType))
 }

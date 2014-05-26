@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 import scala.collection.mutable
 import scala.reflect.runtime.universe.Mirror
 import scala.pickling.PicklingException
-import com.gilt.pickling.Types
+import com.gilt.pickling.util.Types
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
 

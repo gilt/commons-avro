@@ -2,12 +2,13 @@ package com.gilt.pickling.avroschema
 
 import scala.pickling._
 import scala.collection.mutable
-import com.gilt.pickling.Types
+import com.gilt.pickling.util.Types
 import Types._
 import scala.pickling.PicklingException
 import scala.Some
 import java.util.UUID
 import scala.reflect.runtime.universe.typeOf
+import com.gilt.pickling.util.Types
 
 object AvroSchemaPickleBuilder {
   private val namespace = """{"namespace":"""".getBytes
