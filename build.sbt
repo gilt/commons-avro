@@ -13,6 +13,8 @@ libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 )
 
+traceLevel in Test := 5
+
 publishMavenStyle := true
 
 publishTo := {

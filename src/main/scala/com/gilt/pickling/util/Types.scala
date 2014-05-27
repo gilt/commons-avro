@@ -1,10 +1,9 @@
 package com.gilt.pickling.util
 
 import scala.pickling.FastTypeTag
-import java.util.UUID
 
 object Types {
-  val KEY_UUID = implicitly[FastTypeTag[UUID]].key
+  val KEY_UUID = "java.util.UUID"
   val KEY_SOME = "scala.Some"
   val KEY_OPTION = "scala.Option"
   val KEY_NONE = "scala.None.type"
