@@ -9,7 +9,7 @@ import org.apache.avro.generic.GenericData
 import java.nio.ByteBuffer
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import com.gilt.pickling.avro._
+import java.util.UUID
 
 object SingleUuidTest {
   implicit val arbSingleUUID = Arbitrary(for (uuid <- Gen.uuid) yield SingleUuid(uuid))
@@ -18,6 +18,10 @@ object SingleUuidTest {
 class SingleUuidTest extends FunSuite with Assertions with GeneratorDrivenPropertyChecks {
 
   import SingleUuidTest._
+
+  test("Determine is singleUUID file works"){
+    generateBytesFromAvro(SingleUuid(UUID.randomUUID()))
+  }
 
   test("Pickle a case class with a uuid") {
     forAll {

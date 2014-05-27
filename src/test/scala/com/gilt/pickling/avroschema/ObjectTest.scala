@@ -5,7 +5,6 @@ import scala.pickling._
 import com.gilt.pickling.TestUtils._
 import org.scalatest.{Assertions, FunSuite}
 import java.util.UUID
-import com.gilt.pickling.avro._
 
 class ObjectTest extends FunSuite with Assertions{
 
