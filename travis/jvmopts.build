@@ -1,5 +1,5 @@
--Xms2048M
--Xmx2048M
+-Xms4096M
+-Xmx4096M
 -XX:MaxPermSize=384m 
 -XX:ReservedCodeCacheSize=192m 
 -Dfile.encoding=UTF8 
