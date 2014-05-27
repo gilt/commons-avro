@@ -56,6 +56,7 @@ object Types {
 
   def isPrimitive(tag: FastTypeTag[_]): Boolean = primitives.contains(tag.key)
   def isTypeOf(tag: FastTypeTag[_], baseType: String): Boolean =  tag.key.startsWith(baseType)
-  def isCaseClass(tag: FastTypeTag[_]) : Boolean = isCaseClassResultsCache.getOrElseUpdate(tag.key, synchronizedIsCaseClass(tag))
+//  def isCaseClass(tag: FastTypeTag[_]) : Boolean = isCaseClassResultsCache.getOrElseUpdate(tag.key, synchronizedIsCaseClass(tag))
+  def isCaseClass(tag: FastTypeTag[_]) : Boolean = Types.synchronized(tag.tpe.typeSymbol.isClass && tag.tpe.typeSymbol.asClass.isCaseClass)
   def isSupportedCollectionType(tag: FastTypeTag[_]): Boolean = supportedCollections.exists(collectionType => isTypeOf(tag, collectionType))
 }
