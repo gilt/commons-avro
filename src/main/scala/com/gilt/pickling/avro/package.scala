@@ -16,7 +16,7 @@ package object avro {
       builder.beginEntry(picklee)
 
       builder.putField("bytes", b => {
-        b.hintTag(implicitly[FastTypeTag[Array[Byte]]])
+        b.hintTag(FastTypeTag.ArrayByte)
         b.hintStaticallyElidedType()
         builder.beginEntry(uuidToBytes(picklee))
         builder.endEntry()
@@ -27,7 +27,7 @@ package object avro {
 
     def unpickle(tag: => FastTypeTag[_], reader: PReader): Any = {
       val reader1 = reader.readField("bytes")
-      reader1.hintTag(implicitly[FastTypeTag[Array[Byte]]])
+      reader1.hintTag(FastTypeTag.ArrayByte)
       reader1.hintStaticallyElidedType()
 
       reader1.beginEntry()
