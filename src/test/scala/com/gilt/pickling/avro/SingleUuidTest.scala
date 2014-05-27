@@ -46,7 +46,7 @@ class SingleUuidTest extends FunSuite with Assertions with GeneratorDrivenProper
   }
 
   private def generateBytesFromAvro(obj: SingleUuid) = {
-    val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/SingleUuid.avsc")
+    val schema: Schema = retrieveAvroSchemaFromFile("/avro/object/SingleUUID.avsc")
     val uuidSchema = schema.getField("uuid").schema()
 
     val record = new GenericData.Record(schema)

@@ -45,7 +45,7 @@ class ObjectTest extends FunSuite with Assertions{
   }
 
   test("Generate schema from a case class with a UUID") {
-    assert(fingerPrint("/avro/object/SingleUuid.avsc") === fingerPrint(SingleUuid(UUID.randomUUID()).pickle.value))
+    assert(fingerPrint("/avro/object/SingleUUID.avsc") === fingerPrint(SingleUuid(UUID.randomUUID()).pickle.value))
   }
 
   test("Generate schema from a case class with a multiple UUID") {
