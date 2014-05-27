@@ -19,10 +19,6 @@ class SingleUuidTest extends FunSuite with Assertions with GeneratorDrivenProper
 
   import SingleUuidTest._
 
-  test("Determine is singleUUID file works"){
-    generateBytesFromAvro(SingleUuid(UUID.randomUUID()))
-  }
-
   test("Pickle a case class with a uuid") {
     forAll {
       (obj: SingleUuid) =>
