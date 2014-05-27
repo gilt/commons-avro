@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/gilt/commons-avro.png)](http://travis-ci.org/gilt/commons-avro)
+
 # Commons Avro
 
 An Avro library in Scala base on scala pickling. Supports the conversion of case class to avro records or schema
