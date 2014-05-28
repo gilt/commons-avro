@@ -1,4 +1,4 @@
-name := "commons-avro"
+name := "gfc-avro"
 
 organization := "com.gilt"
 
@@ -27,14 +27,14 @@ publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
 
-licenses := Seq("Apache-style" -> url("https://raw.githubusercontent.com/gilt/commons-avro/master/LICENSE"))
+licenses := Seq("Apache-style" -> url("https://raw.githubusercontent.com/gilt/gfc-avro/master/LICENSE"))
 
-homepage := Some(url("https://github.com/gilt/commons-avro"))
+homepage := Some(url("https://github.com/gilt/gfc-avro"))
 
 pomExtra := (
   <scm>
-    <url>https://github.com/gilt/commons-avro.git</url>
-    <connection>scm:git:git@github.com:gilt/commons-avro.git</connection>
+    <url>https://github.com/gilt/gfc-avro.git</url>
+    <connection>scm:git:git@github.com:gilt/gfc-avro.git</connection>
   </scm>
   <developers>
     <developer>
