@@ -59,6 +59,8 @@ object AvroSchemaPickleBuilder {
 //
 // This object is synchronized due to scala 2.10 thread safe issue with reflection.
 //
+// The use of TypeTag is also not ideal and we really should be using FastTypeTag instead. 
+//
 final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: AvroSchemaEncodingOutput = new AvroSchemaEncodingOutput()) extends PBuilder with PickleTools {
 
   import AvroSchemaPickleBuilder._
