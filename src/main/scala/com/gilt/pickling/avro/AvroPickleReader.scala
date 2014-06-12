@@ -111,13 +111,14 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   private def determineNextTag(fastTypeTag: FastTypeTag[_]): FastTypeTag[_] =
     fastTypeTag match {
-      case tag if isPrimitive(tag) && isNotRootObject => tag                                                               // A Primitive type
-      case tag if isTypeOf(tag, KEY_UUID) && isNotRootObject => tag                                                        // A UUID type
-      case tag if (isTypeOf(tag, KEY_SCALA_STRING) || isTypeOf(tag, KEY_JAVA_STRING)) && isNotRootObject => tag            // A String type
-      case tag if isTypeOf(tag, KEY_LIST) && isNotRootObject => buildFastTypeTagWithInstantiableList(tag)                  // Handles the case that List does not have an empty constructor
-      case tag if isSupportedCollectionType(tag) && !isTypeOf(tag, KEY_LIST) && isNotRootObject => tag                     // A Iteration or Array type.
-      case tag if isTypeOf(tag, KEY_OPTION) && isNotRootObject => buildFastTypeTagFromOption(tag)                          // Handles the case where the next type is an option
-      case tag if !isSupportedCollectionType(tag) && isCaseClass(tag) => tag                                               // A Case Class type
+      case tag if isPrimitive(tag) && isNotRootObject => tag                                                                                                // A Primitive type
+      case tag if isTypeOf(tag, KEY_UUID) && isNotRootObject => tag                                                                                         // A UUID type
+      case tag if isTypeOf(tag, KEY_SCALA_BIG_DECIMAL) || isTypeOf(tag, KEY_JAVA_BIG_DECIMAL) || isTypeOf(tag, KEY_MATH_CONTEXT) && isNotRootObject => tag  // A BigDecimal type
+      case tag if (isTypeOf(tag, KEY_SCALA_STRING) || isTypeOf(tag, KEY_JAVA_STRING)) && isNotRootObject => tag                                             // A String type
+      case tag if isTypeOf(tag, KEY_LIST) && isNotRootObject => buildFastTypeTagWithInstantiableList(tag)                                                   // Handles the case that List does not have an empty constructor
+      case tag if isSupportedCollectionType(tag) && !isTypeOf(tag, KEY_LIST) && isNotRootObject => tag                                                      // A Iteration or Array type.
+      case tag if isTypeOf(tag, KEY_OPTION) && isNotRootObject => buildFastTypeTagFromOption(tag)                                                           // Handles the case where the next type is an option
+      case tag if !isSupportedCollectionType(tag) && isCaseClass(tag) => tag                                                                                // A Case Class type
       case tag => throw new PicklingException(s"$tag is not supported")
     }
 

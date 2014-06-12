@@ -29,6 +29,9 @@ object AvroSchemaPickleBuilder {
   private val uuidKey = "java.util.UUID"
   private val cachedUuidField = """"java.util.UUID"""".getBytes
   private val uuidField = """{"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}""".getBytes
+  private val bigDecimalKey = "java.math.BigDecimal"
+  private val cachedBigDecimalField = """"java.math.BigDecimal"""".getBytes
+  private val bigDecimalField = """{"type": "record","name": "BigDecimal","namespace": "java.math","fields": [{"name": "bigInt", "type": "bytes"},{"name": "scale", "type": "int"}]}""".getBytes
 
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
@@ -45,7 +48,7 @@ object AvroSchemaPickleBuilder {
     KEY_JAVA_STRING -> stringField
   )
 
-  private val mapType = Types.synchronized(typeOf[Map[String,_]])
+  private val mapType = Types.synchronized(typeOf[Map[String, _]])
   private val optionType = Types.synchronized(typeOf[Option[_]])
   private val seqType = Types.synchronized(typeOf[Seq[_]])
   private val setType = Types.synchronized(typeOf[Set[_]])
@@ -54,6 +57,7 @@ object AvroSchemaPickleBuilder {
   private val byteArrayType = Types.synchronized(typeOf[Array[Byte]])
   private val stringType = Types.synchronized(typeOf[String])
   private val uuidType = Types.synchronized(typeOf[UUID])
+  private val bigDecimalType = Types.synchronized(typeOf[BigDecimal])
 }
 
 //
@@ -121,6 +125,10 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
       case tpe if tpe <:< uuidType => // UUID Field
         generatedObjectCache += uuidKey
         uuidField
+      case tpe if tpe <:< bigDecimalType && generatedObjectCache.contains(bigDecimalKey) => cachedBigDecimalField // Cached BigDecimal Field
+      case tpe if tpe <:< bigDecimalType => // BigDecimal Field
+        generatedObjectCache += bigDecimalKey
+        bigDecimalField
       case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Map Field
       case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Iteration Field
       case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket // Option Field

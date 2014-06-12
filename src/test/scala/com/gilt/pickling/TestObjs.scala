@@ -132,6 +132,8 @@ object TestObjs {
   case class SingleUuid(uuid: UUID)
   case class SingleOptionUuid(uuid: Option[UUID])
   case class MultipleUuid(uuid1: UUID, uuid2: UUID)
+  case class SingleBigDecimal(big: BigDecimal)
+  case class MultipleBigDecimal(big1: BigDecimal, big2: BigDecimal)
 
   object ObjInnerObject{ val id = 1}
   class ClassInnerObject(id: Int)

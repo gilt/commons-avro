@@ -24,6 +24,7 @@ final class AvroPickleBuilder(format: AvroPickleFormat, buffer: AvroEncodingOutp
         case KEY_SHORT if isNotRootObject => buffer.encodeShortTo(picklee.asInstanceOf[Short])
         case KEY_CHAR if isNotRootObject => buffer.encodeCharTo(picklee.asInstanceOf[Char])
         case KEY_UUID if isNotRootObject => //Nothing to do. Wait for bytes field.
+        case KEY_SCALA_BIG_DECIMAL | KEY_JAVA_BIG_DECIMAL | KEY_MATH_CONTEXT if isNotRootObject => //Nothing to do. Wait for bytes and int field.
         case KEY_ARRAY_BYTE if isTypeOf(tags.head, KEY_UUID)  => buffer.encodeFixedByteArrayTo(picklee.asInstanceOf[Array[Byte]])
         case KEY_ARRAY_INT if isNotRootObject => buffer.encodeIntArrayTo(picklee.asInstanceOf[Array[Int]])
         case KEY_ARRAY_LONG if isNotRootObject => buffer.encodeLongArrayTo(picklee.asInstanceOf[Array[Long]])

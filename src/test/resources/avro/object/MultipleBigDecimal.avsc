@@ -1,0 +1,17 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "MultipleBigDecimal",
+ "fields": [
+     {"name": "big1", "type":
+         {"type": "record",
+          "name": "BigDecimal",
+          "namespace": "java.math",
+          "fields": [
+             {"name": "bigInt", "type": "bytes"},
+             {"name": "scale", "type": "int"}
+          ]
+         }
+     },
+     {"name": "big2", "type":"java.math.BigDecimal"}
+ ]
+}

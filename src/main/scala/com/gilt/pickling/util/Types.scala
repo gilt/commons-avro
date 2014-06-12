@@ -3,6 +3,9 @@ package com.gilt.pickling.util
 import scala.pickling.FastTypeTag
 
 object Types {
+  val KEY_JAVA_BIG_DECIMAL = "java.math.BigDecimal"
+  val KEY_SCALA_BIG_DECIMAL = "scala.math.BigDecimal"
+  val KEY_MATH_CONTEXT = "java.math.MathContext"
   val KEY_UUID = "java.util.UUID"
   val KEY_SOME = "scala.Some"
   val KEY_OPTION = "scala.Option"
