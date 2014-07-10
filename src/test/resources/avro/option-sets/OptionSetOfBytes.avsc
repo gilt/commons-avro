@@ -3,6 +3,6 @@
  "type": "record",
  "name": "OptionSetOfBytes",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "array", "items": "int"}]}
+     {"name": "list", "type": ["null", {"type": "array", "items": "int"}], "default": null}
  ]
 }

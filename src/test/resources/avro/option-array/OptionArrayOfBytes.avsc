@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionArrayOfBytes",
  "fields": [
-     {"name": "list", "type": ["null", "bytes"]}
+     {"name": "list", "type": ["null", "bytes"], "default": null}
  ]
 }

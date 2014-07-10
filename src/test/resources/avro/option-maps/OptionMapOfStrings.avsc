@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionMapOfStrings",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "map", "values": "string"}]}
+     {"name": "list", "type": ["null", {"type": "map", "values": "string"}], "default": null}
  ]
 }

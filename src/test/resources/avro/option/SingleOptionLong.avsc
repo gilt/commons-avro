@@ -2,6 +2,6 @@
  "type": "record",
  "name": "SingleOptionLong",
  "fields": [
-     {"name": "id", "type": ["null", "long"]}
+     {"name": "id", "type": ["null", "long"], "default": null}
  ]
 }

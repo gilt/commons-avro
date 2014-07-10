@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionMapOfDoubles",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "map", "values": "double"}]}
+     {"name": "list", "type": ["null", {"type": "map", "values": "double"}], "default": null}
  ]
 }

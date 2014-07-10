@@ -26,6 +26,7 @@ object AvroSchemaPickleBuilder {
   private val arrayFieldStart = """{"type":"array","items":""".getBytes
   private val mapFieldStart = """{"type":"map","values":""".getBytes
   private val optionalFieldStart = """["null",""".getBytes
+  private val defaultNull = """, "default": null""".getBytes
   private val uuidKey = "java.util.UUID"
   private val cachedUuidField = """"java.util.UUID"""".getBytes
   private val uuidField = """{"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}""".getBytes
@@ -131,7 +132,7 @@ final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: Avro
         bigDecimalField
       case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) => mapFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Map Field
       case tpe@TypeRef(_, _, genericType :: Nil) if supportedIterationType(tpe) => arrayFieldStart ++ typeToBytes(genericType) ++ endCurlyBracket // Iteration Field
-      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket // Option Field
+      case tpe@TypeRef(_, _, genericType :: Nil) if tpe <:< optionType => optionalFieldStart ++ typeToBytes(genericType) ++ endSquareBracket ++ defaultNull // Option Field
       case tpe if generatedObjectCache.contains(typeToString(tpe)) => s""""${typeToString(tpe)}"""".getBytes // Cached case class record
       case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass => // case class field
         generatedObjectCache += typeToString(tpe)

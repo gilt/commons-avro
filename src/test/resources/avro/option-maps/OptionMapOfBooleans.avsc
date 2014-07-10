@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionMapOfBooleans",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "map", "values": "boolean"}]}
+     {"name": "list", "type": ["null", {"type": "map", "values": "boolean"}], "default": null}
  ]
 }

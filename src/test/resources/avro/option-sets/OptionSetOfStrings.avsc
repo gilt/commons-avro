@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionSetOfStrings",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "array", "items": "string"}]}
+     {"name": "list", "type": ["null", {"type": "array", "items": "string"}], "default": null}
  ]
 }

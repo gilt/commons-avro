@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionListOfInts",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "array", "items": "int"}]}
+     {"name": "list", "type": ["null", {"type": "array", "items": "int"}], "default": null}
  ]
 }

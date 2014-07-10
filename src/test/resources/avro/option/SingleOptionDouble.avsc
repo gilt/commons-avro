@@ -2,6 +2,6 @@
  "type": "record",
  "name": "SingleOptionDouble",
  "fields": [
-     {"name": "id", "type": ["null", "double"]}
+     {"name": "id", "type": ["null", "double"], "default": null}
  ]
 }

@@ -2,6 +2,6 @@
  "type": "record",
  "name": "OptionArrayOfFloats",
  "fields": [
-     {"name": "list", "type": ["null", {"type": "array", "items": "float"}]}
+     {"name": "list", "type": ["null", {"type": "array", "items": "float"}], "default": null}
  ]
 }
