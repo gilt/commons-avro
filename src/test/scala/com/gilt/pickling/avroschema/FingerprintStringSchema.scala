@@ -22,8 +22,6 @@ class FingerprintStringSchema extends FunSuite with Assertions {
   }
 
   test("A badly formatted json") {
-    intercept[IllegalArgumentException] {
-      Fingerprint("badly formatted json")
-    }
+    intercept[IllegalArgumentException] (Fingerprint("badly formatted json"))
   }
 }

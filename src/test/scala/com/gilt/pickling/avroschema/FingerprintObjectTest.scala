@@ -55,6 +55,4 @@ class FingerprintObjectTest extends FunSuite with Assertions{
   test("Fingerprint from a case class with an option UUID") {
     assert(Fingerprint(SingleOptionUuid(Some(UUID.randomUUID()))) === fingerPrint(SingleOptionUuid(Some(UUID.randomUUID())).pickle.value))
   }
-
-
 }
