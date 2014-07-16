@@ -15,6 +15,7 @@ object Fingerprint {
 
   def apply(json: Array[Byte]): Array[Byte] = instanceJsonBytes.fingerPrint(json)
 
+  @Deprecated
   def apply[T: SPickler : FastTypeTag](picklee: T): Array[Byte] = instanceObj.fingerPrintFromPicklee(picklee)
 
   def apply(schema: org.apache.avro.Schema): Array[Byte] = instanceSchema.fingerPrint(schema)

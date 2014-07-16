@@ -4,6 +4,7 @@ import scala.pickling.Output
 import org.apache.avro.io.EncoderFactory
 import java.io.ByteArrayOutputStream
 
+@Deprecated
 class AvroSchemaEncodingOutput extends Output[Array[Byte]] {
   val stream = new ByteArrayOutputStream()
   val encoder = EncoderFactory.get.directBinaryEncoder(stream, null)

@@ -3,6 +3,7 @@ package com.gilt.pickling.avroschema
 import scala.pickling.{PBuilder, FastTypeTag, PickleFormat}
 import scala.reflect.runtime.universe.Mirror
 
+@Deprecated
 class AvroSchemaPickleFormat extends PickleFormat {
 
   type PickleType = AvroSchemaPickle

@@ -10,6 +10,7 @@ import java.util.UUID
 import scala.reflect.runtime.universe.typeOf
 import com.gilt.pickling.util.Types
 
+@Deprecated
 object AvroSchemaPickleBuilder {
   private val namespace = """{"namespace":"""".getBytes
   private val record = """","type":"record"""".getBytes
@@ -66,6 +67,7 @@ object AvroSchemaPickleBuilder {
 //
 // The use of TypeTag is also not ideal and we really should be using FastTypeTag instead. 
 //
+@Deprecated
 final class AvroSchemaPickleBuilder(format: AvroSchemaPickleFormat, buffer: AvroSchemaEncodingOutput = new AvroSchemaEncodingOutput()) extends PBuilder with PickleTools {
 
   import AvroSchemaPickleBuilder._
