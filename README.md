@@ -28,11 +28,7 @@ Convert avro bytes to case class
 
 Converting a case class to avro schema
 
-    import scala.pickling._
-    import com.gilt.pickling.avroschema._
-
-    val obj = SomeObject(1)
-    val pckl = obj.pickle
+    val schema = Schema[SomeObject]
 
 
 ## ToDos/Missing Features
