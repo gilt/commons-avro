@@ -10,7 +10,7 @@ class FingerprintSchema extends FunSuite with Assertions{
     import com.gilt.pickling.avroschema._
     import scala.pickling._
 
-    val schema = new Parser().parse(new ByteArrayInputStream(SingleInt(123).pickle.value))
-    assert(Fingerprint(SingleInt(123)) === Fingerprint(schema))
+    val schema = new Parser().parse(new ByteArrayInputStream(Schema[SingleInt]))
+    assert(Fingerprint(schema) === Fingerprint(Schema[SingleInt]))
   }
 }

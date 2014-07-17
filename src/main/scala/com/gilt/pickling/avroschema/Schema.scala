@@ -59,7 +59,8 @@ object Schema {
 
   private case class Result(schema: Array[Byte], objectCache: Set[String])
 
-  def apply[T](implicit ttag: TypeTag[T]): Array[Byte] = new Schema(ttag.tpe).bytes
+  //Synchronized to fix the 2.10 race condition bug in the scala reflective api. 
+  def apply[T](implicit ttag: TypeTag[T]): Array[Byte] = Types.synchronized(new Schema(ttag.tpe).bytes)
 
   def apply[T](clazz: Class[T])(implicit ttag: TypeTag[T]):Array[Byte] = apply[T]
 
