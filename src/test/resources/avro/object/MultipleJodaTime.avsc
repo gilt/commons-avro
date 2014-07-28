@@ -1,0 +1,17 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "MultipleJodaTime",
+ "fields": [
+     {"name": "time1", "type":
+         {"type": "record",
+          "name": "DateTime",
+          "namespace": "org.joda.time",
+          "fields": [
+             {"name": "timestamp", "type": "long"},
+             {"name": "timezone", "type": "string"}
+          ]
+         }
+     },
+     {"name": "time2", "type":"org.joda.time.DateTime"}
+ ]
+}

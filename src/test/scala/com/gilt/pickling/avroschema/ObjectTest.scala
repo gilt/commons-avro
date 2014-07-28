@@ -5,6 +5,7 @@ import scala.pickling._
 import com.gilt.pickling.TestUtils._
 import org.scalatest.{Assertions, FunSuite}
 import java.util.UUID
+import org.joda.time.DateTime
 
 class ObjectTest extends FunSuite with Assertions{
 
@@ -92,4 +93,15 @@ class ObjectTest extends FunSuite with Assertions{
     assert(fingerPrint("/avro/object/MultipleBigDecimal.avsc") === fingerPrint(Schema[MultipleBigDecimal]))
   }
 
+  test("Generate schema from a case class with a Joda DateTime") {
+    assert(fingerPrint("/avro/object/SingleJodaTime.avsc") === fingerPrint(Schema(SingleJodaTime(DateTime.now()))))
+    assert(fingerPrint("/avro/object/SingleJodaTime.avsc") === fingerPrint(Schema(classOf[SingleJodaTime])))
+    assert(fingerPrint("/avro/object/SingleJodaTime.avsc") === fingerPrint(Schema[SingleJodaTime]))
+  }
+
+  test("Generate schema from a case class with multiple a Joda DateTime") {
+    assert(fingerPrint("/avro/object/MultipleJodaTime.avsc") === fingerPrint(Schema(MultipleJodaTime(DateTime.now(), DateTime.now()))))
+    assert(fingerPrint("/avro/object/MultipleJodaTime.avsc") === fingerPrint(Schema(classOf[MultipleJodaTime])))
+    assert(fingerPrint("/avro/object/MultipleJodaTime.avsc") === fingerPrint(Schema[MultipleJodaTime]))
+  }
 }

@@ -7,10 +7,12 @@ scalaVersion := "2.10.4"
 crossScalaVersions := Seq("2.11.1", "2.10.4")
 
 libraryDependencies ++= Seq(
-  "org.apache.avro" % "avro" % "1.7.6",
-  "org.scala-lang" %% "scala-pickling" % "0.8.0",
-  "org.scalatest" %% "scalatest" % "2.1.3" % "test",
-  "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
+  "joda-time"       % "joda-time"       % "2.3",
+  "org.joda"        % "joda-convert"    % "1.6",
+  "org.apache.avro" % "avro"            % "1.7.6",
+  "org.scala-lang"  %% "scala-pickling" % "0.8.0",
+  "org.scalatest"   %% "scalatest"      % "2.1.3" % "test",
+  "org.scalacheck"  %% "scalacheck"     % "1.11.3" % "test"
 )
 
 publishMavenStyle := true

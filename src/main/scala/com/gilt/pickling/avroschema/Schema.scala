@@ -5,6 +5,7 @@ import scala.reflect.runtime.universe._
 import com.gilt.pickling.util.Types._
 import com.gilt.pickling.util.Types
 import java.util.UUID
+import org.joda.time.DateTime
 
 object Schema {
   private val namespace = """{"namespace":"""".getBytes
@@ -28,8 +29,11 @@ object Schema {
   private val cachedUuidField = """"java.util.UUID"""".getBytes
   private val uuidField = """{"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}""".getBytes
   private val bigDecimalKey = "java.math.BigDecimal"
-  private val cachedBigDecimalField = """"java.math.BigDecimal"""".getBytes
+  private val cachedBigDecimalField = s""""$bigDecimalKey"""".getBytes
   private val bigDecimalField = """{"type": "record","name": "BigDecimal","namespace": "java.math","fields": [{"name": "bigInt", "type": "bytes"},{"name": "scale", "type": "int"}]}""".getBytes
+  private val dateTimeKey = "org.joda.time.DateTime"
+  private val cachedDateTimeField = s""""$dateTimeKey"""".getBytes
+  private val dateTimeField = """{"type": "record","name": "DateTime","namespace": "org.joda.time","fields": [{"name": "timestamp", "type": "long"},{"name": "timezone", "type": "string"}]}""".getBytes
 
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
@@ -56,6 +60,7 @@ object Schema {
   private val stringType = Types.synchronized(typeOf[String])
   private val uuidType = Types.synchronized(typeOf[UUID])
   private val bigDecimalType = Types.synchronized(typeOf[BigDecimal])
+  private val dateTimeType = Types.synchronized(typeOf[DateTime])
 
   private case class Result(schema: Array[Byte], objectCache: Set[String])
 
@@ -93,6 +98,10 @@ class Schema(caseClassType: Type) {
         result.copy(schema = result.schema ++ cachedBigDecimalField)
       case tpe if tpe <:< bigDecimalType =>                                                           // BigDecimal Field
         Result(result.schema ++ bigDecimalField, result.objectCache ++ Set(bigDecimalKey))
+      case tpe if tpe <:< dateTimeType && result.objectCache.contains(dateTimeKey) =>                 // Cached DateTime Field
+        result.copy(schema = result.schema ++ cachedDateTimeField)
+      case tpe if tpe <:< dateTimeType =>                                                             // DateTime Field
+        Result(result.schema ++ dateTimeField, result.objectCache ++ Set(dateTimeKey))
       case tpe@TypeRef(_, _, keyType :: genericType :: Nil) if supportMapType(tpe, keyType) =>        // Map Field
         val r = typeToBytes(genericType, result.copy(schema = result.schema ++ mapFieldStart))
         r.copy(schema = r.schema ++ endCurlyBracket)

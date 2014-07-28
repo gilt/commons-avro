@@ -1,6 +1,7 @@
 package com.gilt.pickling
 
 import java.util.UUID
+import org.joda.time.DateTime
 
 object TestObjs {
   case class VectorContainer(value: Vector[Int])
@@ -134,6 +135,8 @@ object TestObjs {
   case class MultipleUuid(uuid1: UUID, uuid2: UUID)
   case class SingleBigDecimal(big: BigDecimal)
   case class MultipleBigDecimal(big1: BigDecimal, big2: BigDecimal)
+  case class SingleJodaTime(time:DateTime)
+  case class MultipleJodaTime(time1: DateTime, time2: DateTime)
 
   object ObjInnerObject{ val id = 1}
   class ClassInnerObject(id: Int)
