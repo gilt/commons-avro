@@ -6,7 +6,7 @@ import org.scalatest.{Assertions, FunSuite}
 import scala.pickling._
 import com.gilt.pickling.TestUtils._
 import org.apache.avro.generic.GenericData
-import org.scalacheck.Arbitrary
+import org.scalacheck.{Gen, Arbitrary}
 import org.scalacheck.Arbitrary.arbBigDecimal
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.joda.time.{DateTime, DateTimeZone}
@@ -18,7 +18,7 @@ object SingleJodaDateTimeTest {
   implicit val arbitraryDate: Arbitrary[SingleJodaTime] = Arbitrary {
     for {
       ts <- Arbitrary.arbitrary[Long]
-      tz <- Arbitrary.arbitrary[Int] if tz >= -23 && tz <= 23
+      tz <- Gen.choose(-23, 23)
     } yield SingleJodaTime(new DateTime(ts, DateTimeZone.forOffsetHours(tz)))
   }
 }
