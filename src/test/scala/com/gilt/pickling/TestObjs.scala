@@ -137,6 +137,9 @@ object TestObjs {
   case class MultipleBigDecimal(big1: BigDecimal, big2: BigDecimal)
   case class SingleJodaTime(time:DateTime)
   case class MultipleJodaTime(time1: DateTime, time2: DateTime)
+  case class FieldOrderingInner(optionalValue: Option[Int], id: Int)
+  case class FieldOrdering(inner: FieldOrderingInner, optionalValue: Option[Int], someList: List[Int], someMap: Map[String, Int], dateTimeField: DateTime, uuidField: UUID, bigDecimal: BigDecimal, arrayField: Array[Int], intField: Int, stringField: String)
+  case class FieldOrdering1(inner: FieldOrderingInner, optionalValue: Option[Int], someList: List[Int], someMap: Map[String, Int], dateTimeField: DateTime, uuidField: UUID, bigDecimal: BigDecimal, intField: Int, stringField: String)
 
   object ObjInnerObject{ val id = 1}
   class ClassInnerObject(id: Int)

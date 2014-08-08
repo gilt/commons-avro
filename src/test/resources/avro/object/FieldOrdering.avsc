@@ -1,0 +1,43 @@
+{"namespace": "com.gilt.pickling.TestObjs",
+ "type": "record",
+ "name": "FieldOrdering",
+ "fields": [
+       {"name": "dateTimeField", "type":
+           {"type": "record",
+            "name": "DateTime",
+            "namespace": "org.joda.time",
+            "fields": [
+               {"name": "timestamp", "type": "long"},
+               {"name": "timezone", "type": "string"}
+            ]
+           }
+       },
+       {"name": "uuidField", "type": {"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}},
+       {"name": "arrayField", "type": {"type": "array", "items": "int"}},
+       {"name": "intField", "type": "int"},
+       {"name": "stringField", "type": "string"},
+       {"name": "inner", "type":
+           {"type": "record",
+            "name": "FieldOrderingInner",
+            "namespace": "com.gilt.pickling.TestObjs",
+            "fields": [
+               {"name": "id", "type": "int"},
+               {"name": "optionalValue", "type": ["null", "int"]}
+            ]
+           }
+       },
+       {"name": "optionalValue", "type": ["null", "int"]},
+       {"name": "someList", "type": {"type": "array", "items": "int"}},
+       {"name": "someMap", "type": {"type": "map", "values": "int"}},
+       {"name": "bigDecimal", "type":
+           {"type": "record",
+            "name": "BigDecimal",
+            "namespace": "java.math",
+            "fields": [
+               {"name": "bigInt", "type": "bytes"},
+               {"name": "scale", "type": "int"}
+            ]
+           }
+       }
+ ]
+}

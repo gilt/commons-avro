@@ -115,13 +115,16 @@ class Schema(caseClassType: Type) {
         result.copy(schema = result.schema ++ s""""${typeToString(tpe)}"""".getBytes)
       case tpe@TypeRef(_, s, _) if s.isClass && s.asClass.isCaseClass =>                              // case class field
         val initResult = Result(result.schema ++ recordSchemaPreamble(s), result.objectCache ++ Set(typeToString(tpe)))
-        val initObjectResult = tpe.members.filter(!_.isMethod).toList.reverse.foldLeft(initResult) { (r, sym) =>
+        val (nonLoopyFields, loopyFields) = tpe.members.filter(!_.isMethod).toList.reverse.partition(sym => isNonLoopyField(sym.typeSignature))
+        val initObjectResult = (nonLoopyFields ++ loopyFields).foldLeft(initResult) { (r, sym) =>
             val fieldResult = typeToBytes(sym.typeSignature, r.copy(r.schema ++ fieldName ++ sym.name.decoded.trim.getBytes ++ fieldType))
             fieldResult.copy(fieldResult.schema ++ endCurlyBracket ++ comma)
         }
         initObjectResult.copy(schema = removeLastComma(initObjectResult) ++ endSquareBracket ++ endCurlyBracket)
       case tpe => throw new IllegalArgumentException(s"$tpe is not supported. Only case classes are supported")
     }
+
+  private def isNonLoopyField(tpe: Type):Boolean = primitiveSymbolToBytes.contains(typeToString(tpe)) || tpe <:< uuidType || tpe <:< dateTimeType || tpe <:< arrayType
 
   private def removeLastComma(result: Result): Array[Byte] =
     if (result.schema.last == commaByte) result.schema.dropRight(1)

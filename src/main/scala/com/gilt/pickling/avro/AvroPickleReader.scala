@@ -8,6 +8,7 @@ import scala.collection.mutable
 import scala.reflect.runtime.universe.Mirror
 import scala.pickling.PicklingException
 import com.gilt.pickling.util.Types
+import java.nio.ByteBuffer
 
 class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleFormat) extends PReader with PickleTools {
 
@@ -98,7 +99,13 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
   }
 
   def endCollection(): Unit = {
-    collectionSize.foreach(size => if (size > 0) tags.pop())
+    collectionSize.foreach { size =>
+      if (size > 0) {
+        tags.pop()
+        decoder.readBytes(ByteBuffer.wrap(new Array(1)))
+      }
+    }
+
     collectionSize = None
     collectionGenericType = None
   }
@@ -111,14 +118,14 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
 
   private def determineNextTag(fastTypeTag: FastTypeTag[_]): FastTypeTag[_] =
     fastTypeTag match {
-      case tag if isPrimitive(tag) && isNotRootObject => tag                                                                                                                               // A Primitive type
-      case tag if isTypeOf(tag, KEY_UUID) && isNotRootObject => tag                                                                                                                        // A UUID type
-      case tag if isTypeOf(tag, KEY_SCALA_BIG_DECIMAL) || isTypeOf(tag, KEY_JAVA_BIG_DECIMAL) || isTypeOf(tag, KEY_MATH_CONTEXT) || isTypeOf(tag, KEY_DATETIME) && isNotRootObject => tag  // A BigDecimal type
-      case tag if (isTypeOf(tag, KEY_SCALA_STRING) || isTypeOf(tag, KEY_JAVA_STRING)) && isNotRootObject => tag                                                                            // A String type
-      case tag if isTypeOf(tag, KEY_LIST) && isNotRootObject => buildFastTypeTagWithInstantiableList(tag)                                                                                  // Handles the case that List does not have an empty constructor
-      case tag if isSupportedCollectionType(tag) && !isTypeOf(tag, KEY_LIST) && isNotRootObject => tag                                                                                     // A Iteration or Array type.
-      case tag if isTypeOf(tag, KEY_OPTION) && isNotRootObject => buildFastTypeTagFromOption(tag)                                                                                          // Handles the case where the next type is an option
-      case tag if !isSupportedCollectionType(tag) && isCaseClass(tag) => tag                                                                                                               // A Case Class type
+      case tag if isPrimitive(tag) && isNotRootObject => tag // A Primitive type
+      case tag if isTypeOf(tag, KEY_UUID) && isNotRootObject => tag // A UUID type
+      case tag if isTypeOf(tag, KEY_SCALA_BIG_DECIMAL) || isTypeOf(tag, KEY_JAVA_BIG_DECIMAL) || isTypeOf(tag, KEY_MATH_CONTEXT) || isTypeOf(tag, KEY_DATETIME) && isNotRootObject => tag // A BigDecimal type
+      case tag if (isTypeOf(tag, KEY_SCALA_STRING) || isTypeOf(tag, KEY_JAVA_STRING)) && isNotRootObject => tag // A String type
+      case tag if isTypeOf(tag, KEY_LIST) && isNotRootObject => buildFastTypeTagWithInstantiableList(tag) // Handles the case that List does not have an empty constructor
+      case tag if isSupportedCollectionType(tag) && !isTypeOf(tag, KEY_LIST) && isNotRootObject => tag // A Iteration or Array type.
+      case tag if isTypeOf(tag, KEY_OPTION) && isNotRootObject => buildFastTypeTagFromOption(tag) // Handles the case where the next type is an option
+      case tag if !isSupportedCollectionType(tag) && isCaseClass(tag) => tag // A Case Class type
       case tag => throw new PicklingException(s"$tag is not supported")
     }
 
@@ -137,6 +144,7 @@ class AvroPickleReader(arr: Array[Byte], val mirror: Mirror, format: AvroPickleF
     val items = new scala.collection.mutable.ArrayBuffer[T]
     val numberOfItems = decoder.readArrayStart()
     (0L until numberOfItems) foreach (_ => items += readFunction())
+    if (numberOfItems > 0) decoder.readBytes(ByteBuffer.wrap(new Array(1)))
     items.toArray
   }
 

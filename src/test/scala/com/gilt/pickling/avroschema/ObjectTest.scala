@@ -104,4 +104,10 @@ class ObjectTest extends FunSuite with Assertions{
     assert(fingerPrint("/avro/object/MultipleJodaTime.avsc") === fingerPrint(Schema(classOf[MultipleJodaTime])))
     assert(fingerPrint("/avro/object/MultipleJodaTime.avsc") === fingerPrint(Schema[MultipleJodaTime]))
   }
+
+  test("Ensure fields are ordered correctly") {
+    assert(fingerPrint("/avro/object/FieldOrdering.avsc") === fingerPrint(Schema(FieldOrdering(FieldOrderingInner(None, 1), Some(1), List(1), Map("1" -> 2), DateTime.now(), UUID.randomUUID(), BigDecimal(1), Array(1), 1, "someString"))))
+    assert(fingerPrint("/avro/object/FieldOrdering.avsc") === fingerPrint(Schema(classOf[FieldOrdering])))
+    assert(fingerPrint("/avro/object/FieldOrdering.avsc") === fingerPrint(Schema[FieldOrdering]))
+  }
 }

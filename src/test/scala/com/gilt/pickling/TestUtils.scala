@@ -18,7 +18,7 @@ object TestUtils {
   def convertToBytes(schema: Schema, record: GenericData.Record): Array[Byte] = {
     val out = new ByteArrayOutputStream()
     val writer = new GenericDatumWriter[GenericRecord](schema)
-    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
+    val encoder: BinaryEncoder = EncoderFactory.get().directBinaryEncoder(out, null)
     writer.write(record, encoder)
     encoder.flush()
     out.toByteArray
