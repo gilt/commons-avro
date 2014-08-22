@@ -5,14 +5,14 @@
        {"name": "dateTimeField", "type":
            {"type": "record",
             "name": "DateTime",
-            "namespace": "org.joda.time",
+            "namespace": "gfc.avro",
             "fields": [
                {"name": "timestamp", "type": "long"},
                {"name": "timezone", "type": "string"}
             ]
            }
        },
-       {"name": "uuidField", "type": {"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}},
+       {"name": "uuidField", "type": {"namespace": "gfc.avro", "type": "fixed", "size": 16, "name": "UUID"}},
        {"name": "arrayField", "type": {"type": "array", "items": "int"}},
        {"name": "intField", "type": "int"},
        {"name": "stringField", "type": "string"},
@@ -32,7 +32,7 @@
        {"name": "bigDecimal", "type":
            {"type": "record",
             "name": "BigDecimal",
-            "namespace": "java.math",
+            "namespace": "gfc.avro",
             "fields": [
                {"name": "bigInt", "type": "bytes"},
                {"name": "scale", "type": "int"}

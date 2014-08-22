@@ -2,6 +2,6 @@
  "type": "record",
  "name": "SingleUuid",
  "fields": [
-     {"name": "uuid", "type": {"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}}
+     {"name": "uuid", "type": {"namespace": "gfc.avro", "type": "fixed", "size": 16, "name": "UUID"}}
  ]
 }

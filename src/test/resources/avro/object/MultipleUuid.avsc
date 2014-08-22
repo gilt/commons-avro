@@ -2,7 +2,7 @@
  "type": "record",
  "name": "MultipleUuid",
  "fields": [
-     {"name": "uuid1", "type": {"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}},
-     {"name": "uuid2", "type": "java.util.UUID"}
+     {"name": "uuid1", "type": {"namespace": "gfc.avro", "type": "fixed", "size": 16, "name": "UUID"}},
+     {"name": "uuid2", "type": "gfc.avro.UUID"}
  ]
 }

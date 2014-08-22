@@ -5,13 +5,13 @@
      {"name": "big1", "type":
          {"type": "record",
           "name": "BigDecimal",
-          "namespace": "java.math",
+          "namespace": "gfc.avro",
           "fields": [
              {"name": "bigInt", "type": "bytes"},
              {"name": "scale", "type": "int"}
           ]
          }
      },
-     {"name": "big2", "type":"java.math.BigDecimal"}
+     {"name": "big2", "type":"gfc.avro.BigDecimal"}
  ]
 }

@@ -5,13 +5,13 @@
      {"name": "time1", "type":
          {"type": "record",
           "name": "DateTime",
-          "namespace": "org.joda.time",
+          "namespace": "gfc.avro",
           "fields": [
              {"name": "timestamp", "type": "long"},
              {"name": "timezone", "type": "string"}
           ]
          }
      },
-     {"name": "time2", "type":"org.joda.time.DateTime"}
+     {"name": "time2", "type":"gfc.avro.DateTime"}
  ]
 }

@@ -26,14 +26,14 @@ object Schema {
   private val optionalFieldStart = """["null",""".getBytes
   private val defaultNull = """, "default": null""".getBytes
   private val uuidKey = "java.util.UUID"
-  private val cachedUuidField = """"java.util.UUID"""".getBytes
-  private val uuidField = """{"namespace": "java.util", "type": "fixed", "size": 16, "name": "UUID"}""".getBytes
+  private val cachedUuidField = """"gfc.avro.UUID"""".getBytes
+  private val uuidField = """{"namespace": "gfc.avro", "type": "fixed", "size": 16, "name": "UUID"}""".getBytes
   private val bigDecimalKey = "java.math.BigDecimal"
-  private val cachedBigDecimalField = s""""$bigDecimalKey"""".getBytes
-  private val bigDecimalField = """{"type": "record","name": "BigDecimal","namespace": "java.math","fields": [{"name": "bigInt", "type": "bytes"},{"name": "scale", "type": "int"}]}""".getBytes
+  private val cachedBigDecimalField = s""""gfc.avro.BigDecimal"""".getBytes
+  private val bigDecimalField = """{"type": "record","name": "BigDecimal","namespace": "gfc.avro","fields": [{"name": "bigInt", "type": "bytes"},{"name": "scale", "type": "int"}]}""".getBytes
   private val dateTimeKey = "org.joda.time.DateTime"
-  private val cachedDateTimeField = s""""$dateTimeKey"""".getBytes
-  private val dateTimeField = """{"type": "record","name": "DateTime","namespace": "org.joda.time","fields": [{"name": "timestamp", "type": "long"},{"name": "timezone", "type": "string"}]}""".getBytes
+  private val cachedDateTimeField = s""""gfc.avro.DateTime"""".getBytes
+  private val dateTimeField = """{"type": "record","name": "DateTime","namespace": "gfc.avro","fields": [{"name": "timestamp", "type": "long"},{"name": "timezone", "type": "string"}]}""".getBytes
 
   private val intField = """"int"""".getBytes
   private val stringField = """"string"""".getBytes
