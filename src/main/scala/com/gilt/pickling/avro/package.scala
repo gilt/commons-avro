@@ -96,6 +96,15 @@ package object avro {
   }
 
 
+  implicit object SBigDecimalPicklerUnpickler extends SPickler[BigDecimal] with Unpickler[BigDecimal] {
+    val format = null // not used
+    def pickle(picklee: BigDecimal, builder: PBuilder): Unit =
+      BigDecimalPicklerUnpickler.pickle(picklee.underlying(), builder)
+
+    def unpickle(tag: => FastTypeTag[_], reader: PReader): Any =
+      BigDecimal(BigDecimalPicklerUnpickler.unpickle(tag, reader).asInstanceOf[java.math.BigDecimal])
+  }
+
   implicit object DateTimePicklerUnpickler extends SPickler[DateTime] with Unpickler[DateTime] {
     val format = null // not used
     def pickle(picklee: DateTime, builder: PBuilder): Unit = {
