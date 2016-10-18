@@ -1,4 +1,7 @@
-[![Build Status](https://secure.travis-ci.org/gilt/gfc-avro.png)](http://travis-ci.org/gilt/gfc-avro) [![Join the chat at https://gitter.im/gilt/gfc](https://badges.gitter.im/gilt/gfc.svg)](https://gitter.im/gilt/gfc?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+DEPRECATED
+==========
+
+This library has been deprecated. We will not accept pull requests or make any changes to this repo going forward. If you are using gfc-avro already and want to add new features or fix any bugs you may find, please fork the repo and continue development there. 
 
 # Gfc Avro
 
